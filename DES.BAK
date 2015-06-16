@@ -66,7 +66,7 @@ void main()
 	clrscr();
 	char msg[80],Key[7],Pkey[7];
 	int i,j,t,M[7][8],PM[7][8];
-	cout<<"\n\tCrypto 1.0";
+	cout<<"\n\tCrptyo 1.0";
 	cout<<"\n\tEnter Your Key:\n\t";
 	/*
 	gets(Key);

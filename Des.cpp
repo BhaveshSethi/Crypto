@@ -28,13 +28,23 @@ int IP[8][8] = {{58,50,42,34,26,18,10,2},
 		{59,51,43,35,27,19,11,3},
 		{61,53,45,37,29,21,13,5},
 		{63,55,47,39,31,23,15,7}};
+int E[8][6] = {{32,1,2,3,4,5},
+	       {4,5,6,7,8,9},
+	       {8,9,10,11,12,13},
+	       {12,13,14,15,16,17},
+	       {16,17,18,19,20,21},
+	       {20,21,22,23,24,25},
+	       {24,25,26,27,28,29},
+	       {28,29,30,31,32,1}};
+int LS[16] = {1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1};
 
-void strToMatrix(char *str,int M[][8])
+void strToMatrix(char *str,int M[][8],int n)
 {
-	int n = strlen(str),i,j,ch;
+	int i,j,ch;
 	for(i=0;i<n;i++)
 	{
-		ch = str[i];
+		ch = (int)((unsigned char)str[i]);
+       //		cout<<"\n\tChar "<<str[i]<<" has a value "<<ch;
 		for(j=0;j<8;j++)
 		{
 			M[i][7-j] = ch%2;
@@ -53,6 +63,7 @@ void matrixToStr(char *str, int M[][8],int n)
 			val = val*2 + M[i][j];
 		}
 		str[i] = (char)val;
+	 //	cout<<"\n\tChar "<<str[i]<<" has a value "<<val;
 	}
 }
 void printMatrix(int M[][8], int n)
@@ -94,11 +105,19 @@ void PCmsg(int M[8][8], int PM[8][8],int mode)
  //	printMatrix(PM,8);
 }
 
+void expand(int M[8][8],int R[8][6])
+{
+}
+
+void genKey_i(int K[7][8],int k[8][6],int i)
+{
+
+}
 void main()
 {
 	clrscr();
-	char msg[80],Key[7],Pkey[7],data[8],R[4],L[4];
-	int i,j,k,len,K[7][8],PK[7][8],M[8][8],PM[8][8];
+	char msg[80],Key[7],Pkey[7],data[8],L[4];
+	int i,j,k[8][6],len,K[7][8],PK[7][8],M[8][8],PM[8][8],R[8][6];
 	cout<<"\n\tCrptyo 1.0";
 	cout<<"\n\tEnter Your Key:\n\t";
 
@@ -108,17 +127,22 @@ void main()
 		cout<<"\n\tInvalid Key Length -- |k| = 56 bits  -- Enter Again\n\t";
 		gets(Key);
 	}                   */
-    /*	strcpy(Key,"BHAVESH");
+	strcpy(Key,"BHAVESH");
 	puts(Key);
-	strToMatrix(Key,K);
+	strToMatrix(Key,K,7);
 	PCkey(K,PK,0);
-    /*	matrixToStr(Pkey,PK,7);
+//	printMatrix(PK,7);
+	matrixToStr(Pkey,PK,7);
 	cout<<"\n\tReceived: "<<Pkey;
-	PCkey(PK,K,1);
+	for(i=0;i<7;i++)
+		cout<<Pkey[i];
+	cout<<";";
+/*	PCkey(PK,K,1);
 	matrixToStr(Key,K,7);
-	cout<<"\n\tReceived Key: "<<Key;   */
+	cout<<"\n\tReceived Key: ";*/
 	cout<<"\n\tEnter your Message ";
-	gets(msg);
+     //	gets(msg);
+	strcpy(msg,"hello br");
 	len = strlen(msg);
 	//TODO 2: implement outer for loop 16 times
 	for(i=0;i<len;i+=8)
@@ -130,11 +154,21 @@ void main()
 		for(j=0;j<8;j++)
 			data[j] = msg[i+j];
 		cout<<"\n\tData: "<<data;
-		strToMatrix(data,M);
+		strToMatrix(data,M,8);
 		PCmsg(M,PM,0);
 		PCmsg(PM,M,1);
-		matrixToStr(data,M,8);
-		cout<<"\n\tReceived Data: "<<data;
+	   //	printMatrix(M,8);
+	   //	printMatrix(PM,8);
+		matrixToStr(data,PM,8);
+		cout<<"\n\tReceived Data: ";
+		for(int h=0;h<8;h++)
+			cout<<data[h];
+		cout<<" with length "<<strlen(data)<<endl;
+		for(j=0;j<16;j++)
+		{
+			genKey_i(K,k,j);
+			expand(PM,R);
+		}
 	}
 	getch();
 }

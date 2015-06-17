@@ -107,17 +107,38 @@ void PCmsg(int M[8][8], int PM[8][8],int mode)
 
 void expand(int M[8][8],int R[8][6])
 {
+
 }
 
-void genKey_i(int K[7][8],int k[8][6],int i)
+void genKey_i(int K[7][8],int k[16][8][6],int i)
 {
-
+	int t[4]={K[0][0],K[0][1],K[3][4],K[3][5]};
+	for(int j=0;j < 28-LS[i];j++)
+	{
+		K[j/8][j%8] = K[(j+ LS[i])/8][(j+ LS[i])%8];
+		K[(j+28)/8][(j+28)%8] = K[(j+28+ LS[i])/8][(j+28+ LS[i])%8];
+	}
+	for(;j<28;j++)
+	{
+		K[j/8][j%8] = t[j+LS[i]-28];
+		K[(j+28)/8][(j+28)%8] = t[j+LS[i]-26];
+	}
+//	cout<<"\n\tK:\n\t";
+//	printMatrix(K,7);
+//	cout<<"\n\t_________";
+//	cout<<"\n\tt:\n\t";
+//	printMatrix(t,7);
+//	cout<<"\n\t_________";
+	for(j=0;j<48;j++)
+	{
+		k[i][j/6][j%6] = K[(PC2[j/6][j%6]-1)/8][(PC2[j/6][j%6]-1)%8];
+	}
 }
 void main()
 {
 	clrscr();
 	char msg[80],Key[7],Pkey[7],data[8],L[4];
-	int i,j,k[8][6],len,K[7][8],PK[7][8],M[8][8],PM[8][8],R[8][6];
+	int i,j,k[16][8][6],len,K[7][8],PK[7][8],M[8][8],PM[8][8],R[8][6];
 	cout<<"\n\tCrptyo 1.0";
 	cout<<"\n\tEnter Your Key:\n\t";
 
@@ -145,6 +166,17 @@ void main()
 	strcpy(msg,"hello br");
 	len = strlen(msg);
 	//TODO 2: implement outer for loop 16 times
+	for(i=0;i<16;i++)
+	{
+		genKey_i(K,k,i);
+		cout<<"\n\tKey "<<i<<":";
+		for(int i1=0;i1<8;i1++)
+		{
+			cout<<"\n\t";
+			for(int j1=0;j1<6;j1++)
+				cout<<k[i][i1][j1];
+		}
+	}
 	for(i=0;i<len;i+=8)
 	{
 		if(len - i < 8)
@@ -166,7 +198,6 @@ void main()
 		cout<<" with length "<<strlen(data)<<endl;
 		for(j=0;j<16;j++)
 		{
-			genKey_i(K,k,j);
 			expand(PM,R);
 		}
 	}

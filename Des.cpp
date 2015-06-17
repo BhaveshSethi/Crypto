@@ -107,7 +107,8 @@ void PCmsg(int M[8][8], int PM[8][8],int mode)
 
 void expand(int M[8][8],int R[8][6])
 {
-
+	for(int i=0;i<48;i++)
+		R[i/6][i%6] = M[(32+E[i/6][i%6]-1)/8][(32+E[i/6][i%6]-1)%8];
 }
 
 void genKey_i(int K[7][8],int k[16][8][6],int i)

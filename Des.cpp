@@ -5,7 +5,7 @@
 #include<stdio.h>
 #include<string.h>
 
-int PC1[7][8] = { {56,49,41,33,25,17,9,1},
+int PC1[7][8] = {{56,49,41,33,25,17,9,1},
 		 {50,42,34,26,18,10,2,51},
 		 {43,35,27,19,11,3,52,44},
 		 {36,55,47,39,31,23,15,7},
@@ -124,19 +124,20 @@ void matrixToStr(char *str, int M[][8],int n)
 	 //	cout<<"\n\tChar "<<str[i]<<" has a value "<<val;
 	}
 }
-void printMatrix(int M[][8], int n)
+void printMatrix(int *M, int m, int n)
 {
 	int i,j;
-	for(i=0;i<n;i++)
+	cout<<endl;
+	for(i=0;i<m;i++)
 	{
-		for(j=0;j<8;j++)
-			cout<<M[i][j];
+		for(j=0;j<n;j++)
+			cout<<M[i*n + j];
 		cout<<endl;
 	}
 }
 void PCkey(int M[7][8], int PM[7][8],int mode)
 {
-	//printMatrix(M,7);
+//	printMatrix((int*)&M,7,8);
 	for(int i=0;i<7;i++)
 		for(int j=0;j<8;j++)
 		{
@@ -172,6 +173,7 @@ void expand(int M[8][8],int R[8][6])
 void genKey_i(int K[7][8],int k[16][8][6],int i)
 {
 	int t[4]={K[0][0],K[0][1],K[3][4],K[3][5]};
+//	printMatrix((int*)&K,7,8);
 	for(int j=0;j < 28-LS[i];j++)
 	{
 		K[j/8][j%8] = K[(j+ LS[i])/8][(j+ LS[i])%8];
@@ -183,15 +185,12 @@ void genKey_i(int K[7][8],int k[16][8][6],int i)
 		K[(j+28)/8][(j+28)%8] = t[j+LS[i]-26];
 	}
 //	cout<<"\n\tK:\n\t";
-//	printMatrix(K,7);
-//	cout<<"\n\t_________";
-//	cout<<"\n\tt:\n\t";
-//	printMatrix(t,7);
-//	cout<<"\n\t_________";
+//	printMatrix((int*)&K,7,8);
 	for(j=0;j<48;j++)
 	{
 		k[i][j/6][j%6] = K[(PC2[j/6][j%6]-1)/8][(PC2[j/6][j%6]-1)%8];
 	}
+//	printMatrix((int*)&k[i],8,6);
 }
 void XOR86(int R[8][6],int key[8][6])
 {
@@ -222,10 +221,14 @@ void main()
 	strcpy(Key,"BHAVESH");
 	puts(Key);
 	strToMatrix(Key,K,7);
+	printMatrix((int*)&K,7,8);
 	PCkey(K,PK,0);
-//	printMatrix(PK,7);
+	printMatrix((int*)PK,7,8);
 	matrixToStr(Pkey,PK,7);
-	cout<<"\n\tReceived: "<<Pkey;
+	cout<<"\n\tReceived: \n\t"<<Pkey;
+	for(i=0;i<7;i++)
+		cout<<i;
+	cout<<"\n\t";
 	for(i=0;i<7;i++)
 		cout<<Pkey[i];
 	cout<<";";
@@ -239,14 +242,11 @@ void main()
 	//TODO 2: implement outer for loop 16 times
 	for(i=0;i<16;i++)
 	{
-		genKey_i(K,k,i);
+		genKey_i(PK,k,i);
+		cout<<"\n\tOriginal Shifted Key \n";
+		printMatrix((int*)&PK,7,8);
 		cout<<"\n\tKey "<<i<<":";
-		for(int i1=0;i1<8;i1++)
-		{
-			cout<<"\n\t";
-			for(int j1=0;j1<6;j1++)
-				cout<<k[i][i1][j1];
-		}
+		printMatrix((int*)&k[i],8,6);
 	}
 	for(i=0;i<len;i+=8)
 	{
@@ -260,8 +260,8 @@ void main()
 		strToMatrix(data,M,8);
 		PCmsg(M,PM,0);
 		PCmsg(PM,M,1);
-	   //	printMatrix(M,8);
-	   //	printMatrix(PM,8);
+		printMatrix((int*)&M,8,8);
+		printMatrix((int*)&PM,8,8);
 		matrixToStr(data,PM,8);
 		cout<<"\n\tReceived Data: ";
 		for(int h=0;h<8;h++)
@@ -270,7 +270,9 @@ void main()
 		for(j=0;j<16;j++)
 		{
 			expand(PM,R);
+			printMatrix((int*)&R,8,6);
 			XOR86(R,k[j]);
+			printMatrix((int*)&R,8,6);
 			for(l=0;l<8;l++)
 			{
 				int m = 2*R[l][0] + R[l][5];
@@ -297,7 +299,7 @@ void main()
 				T[l/8][l%8] = PM[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8];
 		      //	cout<<"\n\tPass "<<j+1<<" done!!";
 		}
-		printMatrix(PM,8);
+		printMatrix((int*)&PM,8,8);
 		matrixToStr(data,PM,8);
 		cout<<"\n\t";
 		for(j=0;j<8;j++)

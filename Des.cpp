@@ -160,7 +160,7 @@ void PCmsg(int M[8][8], int PM[8][8],int mode)
 			else
 				PM[ (IP[i][j]-1)/8  ][ (IP[i][j]-1)%8  ] = M[i][j];
 		}
-	cout<<endl;
+  //	cout<<endl;
  //	printMatrix(PM,8);
 }
 
@@ -236,18 +236,19 @@ void main()
 	matrixToStr(Key,K,7);
 	cout<<"\n\tReceived Key: ";*/
 	cout<<"\n\tEnter your Message ";
-     //	gets(msg);
-	strcpy(msg,"hello br");
+	gets(msg);
+     //	strcpy(msg,"hello br");
 	len = strlen(msg);
 	//TODO 2: implement outer for loop 16 times
 	for(i=0;i<16;i++)
 	{
 		genKey_i(PK,k,i);
-		cout<<"\n\tOriginal Shifted Key \n";
+      //		cout<<"\n\tOriginal Shifted Key \n";
 		//printMatrix((int*)&PK,7,8);
-		cout<<"\n\tKey "<<i<<":";
-		printMatrix((int*)&k[i],8,6);
+      //		cout<<"\n\tKey "<<i<<":";
+      //		printMatrix((int*)&k[i],8,6);
 	}
+	cout<<"\n\t";
 	for(i=0;i<len;i+=8)
 	{
 		if(len - i < 8)
@@ -256,18 +257,18 @@ void main()
 		}
 		for(j=0;j<8;j++)
 			data[j] = msg[i+j];
-		cout<<"\n\tData: "<<data;
+	//	cout<<"\n\tData: "<<data;
 		strToMatrix(data,M,8);
 		PCmsg(M,PM,0);
 		PCmsg(PM,M,1);
 		//printMatrix((int*)&M,8,8);
 		//printMatrix((int*)&PM,8,8);
 		matrixToStr(data,PM,8);
-		cout<<"\n\tReceived Data: ";
-		for(int h=0;h<8;h++)
+	//	cout<<"\n\tReceived Data: ";
+	/*	for(int h=0;h<8;h++)
 			cout<<data[h];
 		cout<<" with length "<<strlen(data)<<endl;
-		for(j=0;j<16;j++)
+	*/	for(j=0;j<16;j++)
 		{
 			expand(PM,R);
 			//printMatrix((int*)&R,8,6);
@@ -304,12 +305,11 @@ void main()
 				M[l/8][l%8] = PM[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8];
 			for(l=0;l<64;l++)
 				PM[l/8][l%8] = M[l/8][l%8];
-			printMatrix((int*)&PM,8,8);
-			cout<<"\n\tPass "<<j+1<<" done!!";
+     //			printMatrix((int*)&PM,8,8);
+     //			cout<<"\n\tPass "<<j+1<<" done!!";
 		}
 		//printMatrix((int*)&PM,8,8);
 		matrixToStr(data,PM,8);
-		cout<<"\n\t";
 		for(j=0;j<8;j++)
 			cout<<data[j];
 	}

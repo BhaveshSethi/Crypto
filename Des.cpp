@@ -1,9 +1,10 @@
 //Testing .bat
 
-#include<iostream.h>
+#include<fstream.h>
 #include<conio.h>
 #include<stdio.h>
 #include<string.h>
+#include<iomanip.h>
 
 int PC1[7][8] = {{56,49,41,33,25,17,9,1},
 		 {50,42,34,26,18,10,2,51},
@@ -208,10 +209,11 @@ void main()
 {
 	clrscr();
 	char msg[80],Key[7],Pkey[7],data[8];
-	int i,j,l,k[16][8][6],len,K[7][8],PK[7][8],M[8][8],PM[8][8],R[8][6],T[8][4],B[8][4],Temp[8][8];
+	int i,j,l,val,k[16][8][6],len,K[7][8],PK[7][8],M[8][8],PM[8][8],R[8][6],T[8][4],B[8][4],Temp[8][8];
 	cout<<"\n\tCrptyo 1.0";
 	cout<<"\n\tEnter Your Key:\n\t";
-
+	fstream f;
+	f.open("Crypt.txt",ios::out | ios::trunc);
    /*	gets(Key);
 	while(strlen(Key) != 7)
 	{
@@ -235,7 +237,7 @@ void main()
 /*	PCkey(PK,K,1);
 	matrixToStr(Key,K,7);
 	cout<<"\n\tReceived Key: ";*/
-	cout<<"\n\tEnter your Message ";
+	cout<<"\n\tEnter your Message \n\t";
 	gets(msg);
      //	strcpy(msg,"hello br");
 	len = strlen(msg);
@@ -253,10 +255,16 @@ void main()
 	{
 		if(len - i < 8)
 		{
-			//TODO 1
+			for(j=0;j< len -i ;j++)
+				data[j] = msg[i+j];
+			for(;j<8;j++)
+				data[j] = 0;
 		}
-		for(j=0;j<8;j++)
-			data[j] = msg[i+j];
+		else
+		{
+			for(j=0;j<8;j++)
+				data[j] = msg[i+j];
+		}
 	//	cout<<"\n\tData: "<<data;
 		strToMatrix(data,M,8);
 		PCmsg(M,PM,0);
@@ -311,7 +319,23 @@ void main()
 		//printMatrix((int*)&PM,8,8);
 		matrixToStr(data,PM,8);
 		for(j=0;j<8;j++)
+		{
 			cout<<data[j];
+			val = (unsigned char)data[j];
+			f<<setw(4)<<val;                  //setw
+		}
 	}
+	f.close();
+	f.open("crypt.txt",ios::in | ios::binary);
+	cout<<"\n\tNow Deciphering... ";
+	i=0;
+	f>>val;
+	while(!f.eof())
+	{
+		cout<<(char)val<<" ";
+		f>>val;
+	}
+//	cout<<msg;
+	f.close();
 	getch();
 }

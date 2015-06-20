@@ -335,7 +335,6 @@ void main()
 		cout<<(char)val<<" ";
 		f>>val;
 	}
-//	cout<<msg;
 	f.close();
 	getch();
 }

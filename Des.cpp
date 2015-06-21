@@ -348,6 +348,7 @@ void main()
 	cout<<"\n\n\tCrypt of length "<<len<<":\n\t";
 	for(i=0;i<len;i++)
 		cout<<msg[i];
+	//random
 	cout<<"\n\n\tPlain Message:\n\t";
 	for(i=0;i<len;i+=8)
 	{

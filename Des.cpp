@@ -309,14 +309,14 @@ void main()
 				PM[(32+l)/8][(32+l)%8] = T[l/4][l%4];
 			}
 			//printMatrix((int*)&PM,8,8);
-			for(l=0;l<64;l++)
-				M[l/8][l%8] = PM[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8];
-			for(l=0;l<64;l++)
-				PM[l/8][l%8] = M[l/8][l%8];
      //			printMatrix((int*)&PM,8,8);
      //			cout<<"\n\tPass "<<j+1<<" done!!";
 		}
 		//printMatrix((int*)&PM,8,8);
+		for(l=0;l<64;l++)
+			M[l/8][l%8] = PM[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8];
+		for(l=0;l<64;l++)
+			PM[l/8][l%8] = M[l/8][l%8];
 		matrixToStr(data,PM,8);
 		for(j=0;j<8;j++)
 		{
@@ -333,11 +333,27 @@ void main()
 	memset(msg,0,sizeof(msg));
 	while(!f.eof())
 	{
-		cout<<(char)val<<" ";
+		//cout<<(char)val<<" ";
 		msg[i++] = (	char)val;
 		f>>val;
 	}
-	cout<<"\n\t"<<msg;
+	cout<<"\n\tCrypt of length "<<strlen(msg)<<":\n\t"<<msg;
+	cout<<"\n\t";
+	for(i=0;i<strlen(msg);i+=8)
+	{
+		for(j=0;j<8;j++)
+			data[j] = msg[i+j];
+		strToMatrix(data,PM,8);
+		for(l=0;l<64;l++)
+			M[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8] = PM[l/8][l%8];
+		for(l=0;l<64;l++)
+			PM[l/8][l%8] = M[l/8][l%8];
+		//printMatrix((int*)&PM,8,8);
+		for(j=15;j>=0;j--)
+		{
+
+		}
+	}
 	f.close();
 	getch();
 }

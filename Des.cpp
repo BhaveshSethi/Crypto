@@ -208,7 +208,7 @@ void XOR84(int R[8][4],int key[8][4])
 void main()
 {
 	clrscr();
-	char msg[80],Key[7],Pkey[7],data[8];
+	char msg[80],Key[7],Pkey[7],data[8],ch;
 	int i,j,l,val,k[16][8][6],len,K[7][8],PK[7][8],M[8][8],PM[8][8],R[8][6],T[8][4],B[8][4],Temp[8][8];
 	cout<<"\n\tCrptyo 1.0";
 	cout<<"\n\tEnter Your Key:\n\t";
@@ -330,11 +330,14 @@ void main()
 	cout<<"\n\tNow Deciphering... ";
 	i=0;
 	f>>val;
+	memset(msg,0,sizeof(msg));
 	while(!f.eof())
 	{
 		cout<<(char)val<<" ";
+		msg[i++] = (	char)val;
 		f>>val;
 	}
+	cout<<"\n\t"<<msg;
 	f.close();
 	getch();
 }

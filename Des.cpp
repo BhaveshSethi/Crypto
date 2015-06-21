@@ -250,7 +250,7 @@ void main()
       //		cout<<"\n\tKey "<<i<<":";
       //		printMatrix((int*)&k[i],8,6);
 	}
-	cout<<"\n\t";
+	cout<<"\n\tCrypt Formed\n\t";
 	for(i=0;i<len;i+=8)
 	{
 		if(len - i < 8)
@@ -313,6 +313,13 @@ void main()
      //			cout<<"\n\tPass "<<j+1<<" done!!";
 		}
 		//printMatrix((int*)&PM,8,8);
+		for(l=0;l<32;l++)
+		{
+			j = PM[l/8][l%8];
+			PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
+			PM[(32+l)/8][(32+l)%8] = j;
+		}
+		//printMatrix((int*)&PM,8,8);
 		for(l=0;l<64;l++)
 			M[l/8][l%8] = PM[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8];
 		for(l=0;l<64;l++)
@@ -327,24 +334,27 @@ void main()
 	}
 	f.close();
 	f.open("crypt.txt",ios::in | ios::binary);
-	cout<<"\n\tNow Deciphering... ";
+	cout<<"\n\n\tNow Deciphering... ";
 	i=0;
 	f>>val;
 	memset(msg,0,sizeof(msg));
 	while(!f.eof())
 	{
 		//cout<<(char)val<<" ";
-		msg[i++] = (	char)val;
+		msg[i++] = (char)val;
 		f>>val;
 	}
-	cout<<"\n\tCrypt of length "<<strlen(msg)<<":\n\t"<<msg;
-	cout<<"\n\t";
-	for(i=0;i<strlen(msg);i+=8)
+	len = i;
+	cout<<"\n\n\tCrypt of length "<<len<<":\n\t";
+	for(i=0;i<len;i++)
+		cout<<msg[i];
+	cout<<"\n\n\tPlain Message:\n\t";
+	for(i=0;i<len;i+=8)
 	{
 		for(j=0;j<8;j++)
 			data[j] = msg[i+j];
-		strToMatrix(data,PM,8);
-		for(l=0;l<64;l++)
+	    //	strToMatrix(data,PM,8);
+	    /*	for(l=0;l<64;l++)
 			M[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8] = PM[l/8][l%8];
 		for(l=0;l<64;l++)
 			PM[l/8][l%8] = M[l/8][l%8];
@@ -352,7 +362,67 @@ void main()
 		for(j=15;j>=0;j--)
 		{
 
+		}    */
+		strToMatrix(data,M,8);
+		PCmsg(M,PM,0);
+		PCmsg(PM,M,1);
+		//printMatrix((int*)&M,8,8);
+		//printMatrix((int*)&PM,8,8);
+		matrixToStr(data,PM,8);
+	//	cout<<"\n\tReceived Data: ";
+	/*	for(int h=0;h<8;h++)
+			cout<<data[h];
+		cout<<" with length "<<strlen(data)<<endl;
+       */	for(j=0;j<16;j++)
+		{
+			expand(PM,R);
+			//printMatrix((int*)&R,8,6);
+			XOR86(R,k[15-j]);
+			//printMatrix((int*)&R,8,6);
+			for(l=0;l<8;l++)
+			{
+				int m = 2*R[l][0] + R[l][5];
+				int n = 8*R[l][1] + 4*R[l][2] + 2*R[l][3] + R[l][4];
+				int val = S[l][m][n];
+				for(int o=0;o<4;o++)
+				{
+					T[l][3-o] = val%2;
+					val/=2;
+				}
+			}
+			//printMatrix((int*)&T,8,4);
+			for(l=0;l<32;l++)
+    /*B contains R*/		B[l/4][l%4] = T[(P[l/4][l%4]-1)/4][(P[l/4][l%4]-1)%4];
+			//printMatrix((int*)&B,8,4);
+			for(l=0;l<32;l++)
+    /*T contains L*/		T[l/4][l%4] = PM[l/8][l%8];
+			//printMatrix((int*)&T,8,4);
+			/*T will contain Li-1 xor f(Ri-1,Ki)*/
+			XOR84(T,B);
+			//printMatrix((int*)&T,8,4);
+			for(l=0;l<32;l++)
+			{
+				PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
+				PM[(32+l)/8][(32+l)%8] = T[l/4][l%4];
+			}
+			//printMatrix((int*)&PM,8,8);
+     //			printMatrix((int*)&PM,8,8);
+     //			cout<<"\n\tPass "<<j+1<<" done!!";
 		}
+		//printMatrix((int*)&PM,8,8);
+		for(l=0;l<32;l++)
+		{
+			j = PM[l/8][l%8];
+			PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
+			PM[(32+l)/8][(32+l)%8] = j;
+		}
+		for(l=0;l<64;l++)
+			M[l/8][l%8] = PM[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8];
+		for(l=0;l<64;l++)
+			PM[l/8][l%8] = M[l/8][l%8];
+		matrixToStr(data,PM,8);
+		for(l=0;l<8;l++)
+			cout<<data[l];
 	}
 	f.close();
 	getch();

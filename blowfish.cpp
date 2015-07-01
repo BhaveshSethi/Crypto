@@ -1,12 +1,12 @@
 #include<fstream.h>
 #include<conio.h>
 #include<string.h>
-int initial_pary[18] = {
+unsigned long int P[18] = {
     0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0,
     0x082efa98, 0xec4e6c89, 0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c,
     0xc0ac29b7, 0xc97c50dd, 0x3f84d5b5, 0xb5470917, 0x9216d5d9, 0x8979fb1b};
 
-int initial_sbox[4][256] = {
+unsigned long int S[4][256] = {
     {0xd1310ba6, 0x98dfb5ac, 0x2ffd72db, 0xd01adfb7, 0xb8e1afed, 0x6a267e96,
      0xba7c9045, 0xf12c7f99, 0x24a19947, 0xb3916cf7, 0x0801f2e2, 0x858efc16,
      0x636920d8, 0x71574e69, 0xa458fea3, 0xf4933d7e, 0x0d95748f, 0x728eb658,
@@ -59,7 +59,7 @@ int initial_sbox[4][256] = {
      0x3e07841c, 0x7fdeae5c, 0x8e7d44ec, 0x5716f2b8, 0xb03ada37, 0xf0500c0d,
      0xf01c1f04, 0x0200b3ff, 0xae0cf51a, 0x3cb574b2, 0x25837a58, 0xdc0921bd,
      0xd19113f9, 0x7ca92ff6, 0x94324773, 0x22f54701, 0x3ae5e581, 0x37c2dadc,
-     0xc8b57634, 0x9af3dda7, 0xa9446146, 0x0fd0030e, 0xecc8c73e, 0xa4751e41,
+	  0xc8b57634, 0x9af3dda7, 0xa9446146, 0x0fd0030e, 0xecc8c73e, 0xa4751e41,
      0xe238cd99, 0x3bea0e2f, 0x3280bba1, 0x183eb331, 0x4e548b38, 0x4f6db908,
      0x6f420d03, 0xf60a04bf, 0x2cb81290, 0x24977c79, 0x5679b072, 0xbcaf89af,
      0xde9a771f, 0xd9930810, 0xb38bae12, 0xdccf3f2e, 0x5512721f, 0x2e6b7124,
@@ -182,5 +182,20 @@ int initial_sbox[4][256] = {
      0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6}};
 void main()
 {
-
+	cout<<"\n\tBlowFish\n\tGenerating Keys";
+	int i,j,k=0;
+	unsigned long int x;
+	char key[20] = "blowfish";
+	int len=strlen(key);
+	for(i=0;i<18;i++)
+	{
+		x=0;
+		for(j=0;j<=3;j++)
+			x += (unsigned long int)(key[(j + k)%len])<<((3-j)*8);
+		cout<<"\n\tk="<<k<<" x="<<x<<" P["<<i<<"]="<<P[i];
+		k = (k+4)%len;
+		P[i]^=x;
+		cout<<"\n\tP["<<i<<"]="<<P[i]<<endl;
+		getch();
+	}
 }

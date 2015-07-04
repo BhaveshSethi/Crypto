@@ -298,9 +298,23 @@ void main()
 	for(i=0;i<18;i+=2)
 	{
 		kL=kR=0;
+		//cout<<"\n"<<keyCrypt;
 		blowfish(keyCrypt,keyCrypt,0);
 		strToInt(&kL,&kR,keyCrypt);
-		//TODO
+		//cout<<" "<<kL<<" "<<kR<<" "<<keyCrypt;
+		P[i] = kL;
+		P[i+1] = kR;
+	}
+	for(i=0;i<4;i++)
+	{
+		for(j=0;j<256;j+=2)
+		{
+			kL=kR=0;
+			blowfish(keyCrypt,keyCrypt,0);
+			strToInt(&kL,&kR,keyCrypt);
+			S[i][j] = kL;
+			S[i][j+1] = kR;
+		}
 	}
 	len = strlen(msg);
 	memset(Cmsg,0,strlen(Cmsg));

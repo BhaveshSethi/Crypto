@@ -1,4 +1,5 @@
 #include<fstream.h>
+#include<iomanip.h>
 #include<conio.h>
 #include<string.h>
 #include<stdio.h>
@@ -269,14 +270,16 @@ void main()
 {
 	clrscr();
 	cout<<"\n\tBlowFish\n\tGenerating Keys";
-	int i,j,k=0;
+	int i,j,k=0,flag,val;
 	unsigned long int x,kL,kR;
 	char key[20],msg[80],data[8],crypt[8],Cmsg[80];
+	fstream fi,f;
+	f.open("cryptBF.txt",ios::out | ios::trunc);
 	strcpy(key,"blowfish");
 	cout<<"\n\tEnter Msg ";
-	gets(msg);
+//	gets(msg);
 //	cout<<msg;
-	cout<<"\n\tMsg is "<<msg<<" of length "<<strlen(msg);
+	//cout<<"\n\tMsg is "<<msg<<" of length "<<strlen(msg);
 //	msg[8]='\0';
 	int len=strlen(key);
 	for(i=0;i<18;i++)
@@ -316,10 +319,40 @@ void main()
 			S[i][j+1] = kR;
 		}
 	}
+	fi.open("test.txt",ios::in | ios::binary);
 	len = strlen(msg);
 	memset(Cmsg,0,strlen(Cmsg));
-	for(i=0;i<len;i+=8)
+	flag=1;
+	char ch;
+//	for(i=0;i<len;i+=8)
+	while(flag)
 	{
+		fi>>ch;
+		j=0;
+		//cout<<ch;
+		data[j]=ch;
+		while(!fi.eof())
+		{
+			fi>>ch;
+			//cout<<ch;
+			data[++j]=ch;
+			if(j==7)
+				break;
+		}
+//		fi.close();
+
+
+		//***************************************
+
+		if(j < 7)
+		{
+//			for(j=0;j< len -i ;j++)
+//				data[j] = msg[i+j];
+			flag=0;
+			j++;
+			for(;j<8;j++)
+				data[j] = 0;
+		}  /*
 		if(len - i < 8)
 		{
 			for(j=0;j< len -i ;j++)
@@ -331,23 +364,46 @@ void main()
 		{
 			for(j=0;j<8;j++)
 				data[j] = msg[i+j];
-		}
+		}    */
 		blowfish(crypt,data,0);
 		//memcpy((Cmsg+strlen(Cmsg)),crypt,8);
+
 		for(j=0;j<8;j++)
+		{
+			val = (unsigned char)crypt[j];
+			f<<setw(4)<<val;
 			Cmsg[i + j] = crypt[j];
+		}
 	}
+	f.close();
+	fi.close();
+	f.open("cryptBF.txt",ios::in | ios::binary);
 	cout<<"\n\tEncrypted Msg is ";
 	for(i=0;i<len;i+=8)
-		print8((Cmsg+i));
+		//print8((Cmsg+i));
 	cout<<"\n\tMsg is ";
-	for(i=0;i<len;i+=8)
+//	for(i=0;i<len;i+=8)
+	flag=1;
+	while(flag)
 	{
+		memset(crypt,0,8);
+		i=0;
+		while(!f.eof())
+		{
+			f>>val;
+			crypt[i++] = (char)val;
+			if(f.eof())
+				flag=0;
+			if(i==8)
+				break;
+		}     /*
 		for(j=0;j<8;j++)
-			crypt[j] = Cmsg[i+j];
+			crypt[j] = Cmsg[i+j];*/
 		blowfish(crypt,data,1);
-		print8(data);
+		//print8(data);
 	}
+	f.close();
 //	print8(data);
+	cout<<"done";
 	getch();
 }

@@ -213,7 +213,7 @@ void main()
 	cout<<"\n\tCrptyo 1.0";
 	cout<<"\n\tEnter Your Key:\n\t";
 	fstream f;
-	f.open("Crypt.txt",ios::out | ios::trunc);
+	f.open("crypt.txt",ios::out | ios::trunc);
    /*	gets(Key);
 	while(strlen(Key) != 7)
 	{
@@ -238,7 +238,7 @@ void main()
 	matrixToStr(Key,K,7);
 	cout<<"\n\tReceived Key: ";*/
 	cout<<"\n\tEnter your Message \n\t";
-	gets(msg);
+	//gets(msg);
      //	strcpy(msg,"hello br");
 	len = strlen(msg);
 	//TODO 2: implement outer for loop 16 times
@@ -250,22 +250,48 @@ void main()
       //		cout<<"\n\tKey "<<i<<":";
       //		printMatrix((int*)&k[i],8,6);
 	}
+	ifstream fi;
+	fi.open("test.txt",ios::in | ios::binary);
+	int flag=1;
 	cout<<"\n\tCrypt Formed\n\t";
-	for(i=0;i<len;i+=8)
+//	for(i=0;i<len;i+=8)
+	while(flag)
 	{
-		if(len - i < 8)
+		//***************************************
+		//Reading and Encrypting a file
+
+		fi>>ch;
+		j=0;
+		//cout<<ch;
+		data[j]=ch;
+		while(!fi.eof())
 		{
-			for(j=0;j< len -i ;j++)
-				data[j] = msg[i+j];
+			fi>>ch;
+			//cout<<ch;
+			data[++j]=ch;
+			if(j==7)
+				break;
+		}
+//		fi.close();
+
+
+		//***************************************
+
+		if(j < 7)
+		{
+//			for(j=0;j< len -i ;j++)
+//				data[j] = msg[i+j];
+			flag=0;
+			j++;
 			for(;j<8;j++)
 				data[j] = 0;
 		}
-		else
+/*		else
 		{
 			for(j=0;j<8;j++)
 				data[j] = msg[i+j];
 		}
-	//	cout<<"\n\tData: "<<data;
+*/	//	cout<<"\n\tData: "<<data;
 		strToMatrix(data,M,8);
 		PCmsg(M,PM,0);
 		PCmsg(PM,M,1);
@@ -327,15 +353,18 @@ void main()
 		matrixToStr(data,PM,8);
 		for(j=0;j<8;j++)
 		{
-			cout<<data[j];
+			//cout<<data[j];
 			val = (unsigned char)data[j];
-			f<<setw(4)<<val;                  //setw
+			f<<setw(4)<<val;
+//			f<<data[j];
 		}
 	}
+	fi.close();
 	f.close();
 	f.open("crypt.txt",ios::in | ios::binary);
+	flag=1;
 	cout<<"\n\n\tNow Deciphering... ";
-	i=0;
+/*	i=0;
 	f>>val;
 	memset(msg,0,sizeof(msg));
 	while(!f.eof())
@@ -348,12 +377,24 @@ void main()
 	cout<<"\n\n\tCrypt of length "<<len<<":\n\t";
 	for(i=0;i<len;i++)
 		cout<<msg[i];
-	cout<<"\n\n\tPlain Message:\n\t";
-	for(i=0;i<len;i+=8)
+*/	cout<<"\n\n\tPlain Message:\n\t";
+//	for(i=0;i<len;i+=8)
+	while(flag)
 	{
-		for(j=0;j<8;j++)
+		memset(data,0,8);
+		i=0;
+		while(!f.eof())
+		{
+			f>>val;
+			data[i++] = (char)val;
+			if(f.eof())
+				flag=0;
+			if(i==8)
+				break;
+		}
+	    /*	for(j=0;j<8;j++)
 			data[j] = msg[i+j];
-	    //	strToMatrix(data,PM,8);
+	  */  //	strToMatrix(data,PM,8);
 	    /*	for(l=0;l<64;l++)
 			M[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8] = PM[l/8][l%8];
 		for(l=0;l<64;l++)
@@ -421,9 +462,10 @@ void main()
 		for(l=0;l<64;l++)
 			PM[l/8][l%8] = M[l/8][l%8];
 		matrixToStr(data,PM,8);
-		for(l=0;l<8;l++)
-			cout<<data[l];
+	       //	for(l=0;l<8;l++)
+	       //		cout<<data[l];
 	}
+	cout<<"done";
 	f.close();
 	getch();
 }

@@ -1,6 +1,7 @@
 #include<fstream.h>
 #include<conio.h>
 #include<string.h>
+#include<stdio.h>
 unsigned long int P[18] = {
     0x243f6a88, 0x85a308d3, 0x13198a2e, 0x03707344, 0xa4093822, 0x299f31d0,
     0x082efa98, 0xec4e6c89, 0x452821e6, 0x38d01377, 0xbe5466cf, 0x34e90c6c,
@@ -181,23 +182,31 @@ unsigned long int S[4][256] = {
      0x01c36ae4, 0xd6ebe1f9, 0x90d4f869, 0xa65cdea0, 0x3f09252d, 0xc208e69f,
      0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6}};
 
-void blowfish(unsigned char str[8])
+void strToInt(unsigned long int *xL, unsigned long int *xR, unsigned char str[8])
+{
+	*xL=*xR=0;
+	for(int j=0;j<4;j++)
+	{
+		*xL+=(unsigned long int)(str[j])<<((3-j)*8);
+		*xR+=(unsigned long int)(str[j+4])<<((3-j)*8);
+	}
+}
+void blowfish(unsigned char Cstr[8], unsigned char str[8],int mode)
 {
 	unsigned char strL[4],strR[4];
 	int i,j;
-	cout<<"\n\tMsg is "<<str;
 	unsigned long int xL,xR,x,y,temp;
-	memcpy(strL,str,4);
-	memcpy(strR,(str+4),4);
-	for(j=0;j<4;j++)
-	{
-		xL+=(unsigned long int)(strL[j])<<((3-j)*8);
-		xR+=(unsigned long int)(strR[j])<<((3-j)*8);
-	}
+	if(!mode)
+		strToInt(&xL,&xR,str);
+	else
+		strToInt(&xL,&xR,Cstr);
 	for(i=0;i<16;i++)
 	{
 		x=y=0;
-		xL^=P[i];
+		if(mode==0)
+			xL^=P[i];
+		else
+			xL^=P[17-i];
 		x=xL;
 		//cout<<"\n\tx = "<<x;
 		for(j=3;j>=0;j--)
@@ -214,7 +223,7 @@ void blowfish(unsigned char str[8])
 		/*for(j=3;j>=0;j--)
 		{
 			strR[j] = x;
-		//	cout<<"\n\tstr["<<j<<"] = "<<strL[j]<<" "<<(int)strL[j];
+			cout<<"\n\tstr["<<j<<"] = "<<strL[j]<<" "<<(int)strL[j];
 			x = x >> 8;
 		}*/
 		temp = xL;
@@ -224,40 +233,107 @@ void blowfish(unsigned char str[8])
 	temp = xL;
 	xL = xR;
 	xR = temp;
-	xR ^= P[16];
-	xL ^= P[17];
+	if(mode==0)
+	{
+		xR ^= P[16];
+		xL ^= P[17];
+	}
+	else
+	{
+		xR ^= P[1];
+		xL ^= P[0];
+	}
 	for(j=3;j>=0;j--)
 	{
-		str[j+4] = xR;
-		str[j] = xL;
-		cout<<"\n\tstr["<<j<<"] = "<<str[j]<<" "<<(int)str[j]<<"\n\tstr["<<j+4<<"] = "<<str[j+4]<<" "<<(int)str[j];
+		if(!mode)
+		{
+			Cstr[j+4] = xR;
+			Cstr[j] = xL;
+		}
+		else
+		{
+			str[j+4] = xR;
+			str[j] = xL;
+		}
+		//cout<<"\n\tstr["<<j<<"] = "<<str[j]<<" "<<(int)str[j]<<"\n\tstr["<<j+4<<"] = "<<str[j+4]<<" "<<(int)str[j+4];
 		xL = xL >> 8;
 		xR = xR >> 8;
 	}
 }
+void print8(char *str)
+{
+	for(int i=0;i<8;i++)
+		cout<<str[i];
+}
 void main()
 {
+	clrscr();
 	cout<<"\n\tBlowFish\n\tGenerating Keys";
 	int i,j,k=0;
-	unsigned long int x;
-	char key[20],msg[8];
+	unsigned long int x,kL,kR;
+	char key[20],msg[80],data[8],crypt[8],Cmsg[80];
 	strcpy(key,"blowfish");
-	strcpy(msg,"BhaveshS");
-	msg[8]='\0';
+	cout<<"\n\tEnter Msg ";
+	gets(msg);
+//	cout<<msg;
+	cout<<"\n\tMsg is "<<msg<<" of length "<<strlen(msg);
+//	msg[8]='\0';
 	int len=strlen(key);
 	for(i=0;i<18;i++)
 	{
 		x=0;
 		for(j=0;j<=3;j++)
 			x += (unsigned long int)(key[(j + k)%len])<<((3-j)*8);
-		cout<<"\n\tk="<<k<<" x="<<x<<" P["<<i<<"]="<<P[i];
+		//cout<<"\n\tk="<<k<<" x="<<x<<" P["<<i<<"]="<<P[i];
 		k = (k+4)%len;
 		P[i]^=x;
-		cout<<"\n\tP["<<i<<"]="<<P[i]<<endl;
+ //		cout<<"\n\tP["<<i<<"]="<<P[i]<<endl;
  //		getch();
 	}
-	cout<<"\n\tMsg is "<<msg;
-	blowfish(msg);
-	cout<<"\n\tCrypt is "<<msg;
+//	cout<<"\n\tMsg is ";
+//	print8(msg);
+
+	char keyCrypt[8];
+	memset(keyCrypt,0,8);
+	for(i=0;i<18;i+=2)
+	{
+		kL=kR=0;
+		blowfish(keyCrypt,keyCrypt,0);
+		strToInt(&kL,&kR,keyCrypt);
+		//TODO
+	}
+	len = strlen(msg);
+	memset(Cmsg,0,strlen(Cmsg));
+	for(i=0;i<len;i+=8)
+	{
+		if(len - i < 8)
+		{
+			for(j=0;j< len -i ;j++)
+				data[j] = msg[i+j];
+			for(;j<8;j++)
+				data[j] = 0;
+		}
+		else
+		{
+			for(j=0;j<8;j++)
+				data[j] = msg[i+j];
+		}
+		blowfish(crypt,data,0);
+		//memcpy((Cmsg+strlen(Cmsg)),crypt,8);
+		for(j=0;j<8;j++)
+			Cmsg[i + j] = crypt[j];
+	}
+	cout<<"\n\tEncrypted Msg is ";
+	for(i=0;i<len;i+=8)
+		print8((Cmsg+i));
+	cout<<"\n\tMsg is ";
+	for(i=0;i<len;i+=8)
+	{
+		for(j=0;j<8;j++)
+			crypt[j] = Cmsg[i+j];
+		blowfish(crypt,data,1);
+		print8(data);
+	}
+//	print8(data);
 	getch();
 }

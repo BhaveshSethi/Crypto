@@ -268,18 +268,21 @@ void print8(char *str)
 }
 void main()
 {
-	clrscr();
+//	clrscr();
 	cout<<"\n\tBlowFish\n\tGenerating Keys";
 	int i,j,k=0,flag,val;
 	unsigned long int x,kL,kR;
-	char key[20],msg[80],data[8],crypt[8],Cmsg[80];
-	fstream fi,f;
-	f.open("cryptBF.txt",ios::out | ios::trunc);
+	FILE *oFile, *cFile;
+	oFile = fopen("test.zip","rb");        //the file to be encrypted
+	char key[20],msg[80],data[8],crypt[8];
+	//fstream f;
+	//f.open("crypt1.dat",ios::out | ios::trunc);
+	cFile = fopen("crypt1.dat","wb");//crypt file
 	strcpy(key,"blowfish");
-	cout<<"\n\tEnter Msg ";
+	cout<<"\n\tEnter Msg \n\t";
 //	gets(msg);
 //	cout<<msg;
-	//cout<<"\n\tMsg is "<<msg<<" of length "<<strlen(msg);
+//	cout<<"\n\tMsg is "<<msg<<" of length "<<strlen(msg);
 //	msg[8]='\0';
 	int len=strlen(key);
 	for(i=0;i<18;i++)
@@ -319,37 +322,42 @@ void main()
 			S[i][j+1] = kR;
 		}
 	}
-	fi.open("test.txt",ios::in | ios::binary);
+//	fi.open("crypt.txt",ios::in | ios::binary);
 	len = strlen(msg);
-	memset(Cmsg,0,strlen(Cmsg));
+	//memset(Cmsg,0,strlen(Cmsg));
 	flag=1;
-	char ch;
+	fseek(oFile,0,SEEK_SET);
+	fseek(cFile,0,SEEK_SET);
+	char ch='1';
 //	for(i=0;i<len;i+=8)
+	len=0;
 	while(flag)
 	{
-		fi>>ch;
+		ch = fgetc(oFile);
 		j=0;
 		//cout<<ch;
-		data[j]=ch;
-		while(!fi.eof())
+		//data[j]=ch;
+		while(ch!=EOF)
 		{
-			fi>>ch;
-			//cout<<ch;
-			data[++j]=ch;
-			if(j==7)
+			cout<<ch;
+			data[j++]=ch;
+			if(j==8)
 				break;
+			ch=fgetc(oFile);
 		}
 //		fi.close();
 
 
 		//***************************************
 
-		if(j < 7)
+		if(j==0)
+			break;
+		else if(j < 8)
 		{
 //			for(j=0;j< len -i ;j++)
 //				data[j] = msg[i+j];
 			flag=0;
-			j++;
+			//j++;
 			for(;j<8;j++)
 				data[j] = 0;
 		}  /*
@@ -368,42 +376,71 @@ void main()
 		blowfish(crypt,data,0);
 		//memcpy((Cmsg+strlen(Cmsg)),crypt,8);
 
+		//print8(crypt);
+		len+=8;
 		for(j=0;j<8;j++)
 		{
 			val = (unsigned char)crypt[j];
-			f<<setw(4)<<val;
-			Cmsg[i + j] = crypt[j];
+			//f<<setw(4)<<val;
+			fputc(val,cFile);
+			//cout<<(char)val<<" ";
+
+			//Cmsg[i + j] = crypt[j];
 		}
+		//cout<<len;
 	}
-	f.close();
-	fi.close();
-	f.open("cryptBF.txt",ios::in | ios::binary);
-	cout<<"\n\tEncrypted Msg is ";
-	for(i=0;i<len;i+=8)
+	fclose(cFile);
+	fclose(oFile);
+	cFile = fopen("crypt1.dat","rb");
+//	fi.open("test1.txt",ios::out | ios::trunc);
+//	fopen("test1.txt","w");
+	cout<<"\n\tEncrypted Msg is \n\t";
+//	for(i=0;i<len;i+=8)
 		//print8((Cmsg+i));
-	cout<<"\n\tMsg is ";
+	cout<<"\n\tMsg is \n\t";
 //	for(i=0;i<len;i+=8)
 	flag=1;
+	oFile = fopen("test1.zip","wb");
+	fseek(oFile,0,SEEK_SET);
+	fseek(cFile,0,SEEK_SET);
+	ch='0';
+	//cout<<" ";
+	len=0;
 	while(flag)
 	{
 		memset(crypt,0,8);
 		i=0;
-		while(!f.eof())
+		while(val != EOF)
 		{
-			f>>val;
-			crypt[i++] = (char)val;
-			if(f.eof())
+			val = fgetc(cFile);
+			if(val == EOF)
 				flag=0;
+			else
+			{
+				crypt[i++] = (unsigned char)val;
+				//cout<<(char)val<<" ";
+			}
 			if(i==8)
 				break;
 		}     /*
 		for(j=0;j<8;j++)
 			crypt[j] = Cmsg[i+j];*/
 		blowfish(crypt,data,1);
-		//print8(data);
+		len+=8;
+		if(flag)
+		{
+			print8(data);
+			//cout<<len;
+			for(int i=0;i<8;i++)
+			{
+				if(data[i])
+					fputc(data[i],oFile);
+			}
+		}
 	}
-	f.close();
-//	print8(data);
+	fclose(cFile);
+	fclose(oFile);
+//	print8(data);fgetc
 	cout<<"done";
 	getch();
 }

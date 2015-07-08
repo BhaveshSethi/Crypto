@@ -273,7 +273,7 @@ void main()
 	int i,j,k=0,flag,val;
 	unsigned long int x,kL,kR;
 	FILE *oFile, *cFile;
-	oFile = fopen("test.zip","rb");        //the file to be encrypted
+	oFile = fopen("test.txt","rb");        //the file to be encrypted
 	char key[20],msg[80],data[8],crypt[8];
 	//fstream f;
 	//f.open("crypt1.dat",ios::out | ios::trunc);
@@ -400,7 +400,7 @@ void main()
 	cout<<"\n\tMsg is \n\t";
 //	for(i=0;i<len;i+=8)
 	flag=1;
-	oFile = fopen("test1.zip","wb");
+	oFile = fopen("test1.txt","wb");
 	fseek(oFile,0,SEEK_SET);
 	fseek(cFile,0,SEEK_SET);
 	ch='0';

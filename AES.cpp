@@ -1,6 +1,8 @@
 #include<iostream.h>
 #include<conio.h>
 #include<stdio.h>
+#include<iomanip.h>
+
 
 
 unsigned char S[256] =
@@ -42,3 +44,64 @@ unsigned char inv_S[256] =
    0xA0, 0xE0, 0x3B, 0x4D, 0xAE, 0x2A, 0xF5, 0xB0, 0xC8, 0xEB, 0xBB, 0x3C, 0x83, 0x53, 0x99, 0x61,
    0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D
 };
+
+unsigned char RC[10] =
+{
+   0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36
+};
+
+void SubWord(unsigned char word[4])
+{
+	int val;
+	for(int i=0;i<4;i++)
+	{
+		val = word[i];
+		word[i] = (unsigned char)S[val];
+	}
+}
+
+void keyExpansion(unsigned char key[16], unsigned char word[44][4])
+{
+	unsigned char temp[4],t;
+	for(int i=0;i<4;i++)
+		for(int j=0;j<4;j++)
+			word[i][j] = key[4*i + j];
+
+	for(i=4;i<44;i++)
+	{
+		for(j=0;j<4;j++)
+			temp[j] = word[i-1][j];
+
+		if(i%4==0)
+		{
+			t = temp[0];
+			for(j=0;j<3;j++)
+				temp[j] = temp[j+1];
+			temp[3] = t;
+			SubWord(temp);
+			temp[0]^=RC[i/4-1];
+		}
+
+		for(j=0;j<4;j++)
+			word[i][j] = word[i-4][j] ^ temp[j];
+	}
+}
+void main()
+{
+	clrscr();
+	int i,j;
+
+	unsigned char key[16] = {0x0f,0x15,0x71,0xc9,0x47,0xd9,0xe8,0x59,0x0c,0xb7,0xad,0xd6,0xaf,0x7f,0x67,0x98};
+	unsigned char word[44][4];
+	keyExpansion(key,word);
+	/*for(i=0;i<44;i++)
+	{
+		cout<<"w"<<dec<<i<<" is";
+		for(j=0;j<4;j++)
+			cout<<" "<<hex<<(int)word[i][j];
+		cout<<endl;
+	}*/
+
+
+	getch();
+}

@@ -277,7 +277,7 @@ void main()
 	char key[20],msg[80],data[8],crypt[8];
 	//fstream f;
 	//f.open("crypt1.dat",ios::out | ios::trunc);
-	cFile = fopen("crypt1.dat","wb");//crypt file
+	cFile = fopen("cryptBF.dat","wb");//crypt file
 	strcpy(key,"blowfish");
 	cout<<"\n\tEnter Msg \n\t";
 //	gets(msg);
@@ -391,20 +391,12 @@ void main()
 	}
 	fclose(cFile);
 	fclose(oFile);
-	cFile = fopen("crypt1.dat","rb");
-//	fi.open("test1.txt",ios::out | ios::trunc);
-//	fopen("test1.txt","w");
-	cout<<"\n\tEncrypted Msg is \n\t";
-//	for(i=0;i<len;i+=8)
-		//print8((Cmsg+i));
-	cout<<"\n\tMsg is \n\t";
-//	for(i=0;i<len;i+=8)
+	cFile = fopen("cryptBF.dat","rb");
 	flag=1;
 	oFile = fopen("test1.txt","wb");
 	fseek(oFile,0,SEEK_SET);
 	fseek(cFile,0,SEEK_SET);
 	ch='0';
-	//cout<<" ";
 	len=0;
 	while(flag)
 	{

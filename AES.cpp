@@ -50,10 +50,17 @@ unsigned char RC[10] =
    0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36
 };
 
-void SubWord(unsigned char word[4])
+int PM[16] = {0,5,10,15,4,9,14,3,8,13,2,7,12,1,6,11};
+
+int MC[4][4] = {{ 2, 3, 1, 1},
+		{ 1, 2, 3, 1},
+		{ 1, 1, 2, 3},
+		{ 3, 1, 1, 2}};
+
+void SubWord(unsigned char *word, int n)
 {
 	int val;
-	for(int i=0;i<4;i++)
+	for(int i=0;i<n;i++)
 	{
 		val = word[i];
 		word[i] = (unsigned char)S[val];
@@ -78,7 +85,7 @@ void keyExpansion(unsigned char key[16], unsigned char word[44][4])
 			for(j=0;j<3;j++)
 				temp[j] = temp[j+1];
 			temp[3] = t;
-			SubWord(temp);
+			SubWord(temp,4);
 			temp[0]^=RC[i/4-1];
 		}
 
@@ -86,10 +93,74 @@ void keyExpansion(unsigned char key[16], unsigned char word[44][4])
 			word[i][j] = word[i-4][j] ^ temp[j];
 	}
 }
+void printHex(unsigned char data[16])
+{
+	cout<<endl;
+	for(int i=0;i<16;i++)
+		cout<<hex<<(int)data[i]<<dec<<" ";
+}
+void ShiftRows(char data[16])
+{
+	char str[16];
+	memset(str,0,16);
+	for(int i=0;i<16;i++)
+		str[i] = data[PM[i]];
+	for(i=0;i<16;i++)
+		data[i] = str[i];
+}
+void MixCol(unsigned char data[16])
+{
+	int i,j;
+	unsigned char a[4],b[4],c,h;
+	for(i=0;i<4;i++)
+	{
+		for(j=0;j<4;j++)
+		{
+			a[j] = data[4*i + j];
+			h = (unsigned char)((signed char)data[4*i+j]>>7);
+			b[j] = data[4*i  + j]<<1;
+			b[j] ^= (0x1B & h);
+		}
+		data[4*i + 0] = b[0] ^ a[3] ^ a[2] ^ b[1] ^ a[1];
+		data[4*i + 1] = b[1] ^ a[0] ^ a[3] ^ b[2] ^ a[2];
+		data[4*i + 2] = b[2] ^ a[1] ^ a[0] ^ b[3] ^ a[3];
+		data[4*i + 3] = b[3] ^ a[2] ^ a[1] ^ b[0] ^ a[0];
+	}
+}
+void AESEncrypt(char msg[16], char cipher[16], unsigned char w[44][4])
+{
+	int i,j;
+	memset(cipher,0,16);
+	for(i=0;i<16;i++)
+		cipher[i] = msg[i]^w[i/4][i%4];         //Round 0
+	printHex(cipher);
+
+	for(j=1;j<=9;j++)
+	{
+		cout<<"\nRound"<<j;
+		SubWord(cipher,16);
+		printHex(cipher);
+		ShiftRows(cipher);
+		printHex(cipher);
+		MixCol(cipher);
+		printHex(cipher);
+		for(i=0;i<16;i++)
+			cipher[i] ^= w[4*j + i/4][i%4];
+		printHex(cipher);
+	}
+	cout<<"\nRound 10";
+	SubWord(cipher,16);
+	printHex(cipher);
+	ShiftRows(cipher);
+	printHex(cipher);
+	for(i=0;i<16;i++)
+		cipher[i] ^= w[4*j + i/4][i%4];
+	printHex(cipher);
+}
 void main()
 {
 	clrscr();
-	int i,j;
+	int i,j,flag=1;
 
 	unsigned char key[16] = {0x0f,0x15,0x71,0xc9,0x47,0xd9,0xe8,0x59,0x0c,0xb7,0xad,0xd6,0xaf,0x7f,0x67,0x98};
 	unsigned char word[44][4];
@@ -102,6 +173,45 @@ void main()
 		cout<<endl;
 	}*/
 
+	char data[16] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef,0xfe,0xdc,0xba,0x98,0x76,0x54,0x32,0x10},crypt[16],ch;
 
+	/*FILE *oFile,*cFile;
+	oFile = fopen("test.txt","rb");
+	cFile = fopen("crypt.dat","wb");
+
+	while(flag)
+	{
+		ch=fgetc(oFile);
+		i=0;
+		while(ch!=EOF)
+		{
+			cout<<ch;
+			data[i++]=ch;
+			if(i==16)
+				break;
+			ch=fgetc(oFile);
+		}
+		if(i==0)
+			break;
+		else if(i<16)
+		{
+			flag=0;
+			for(;i<16;i++)
+				data[i]=0;
+		}
+		AESEncrypt(data,crypt,word);
+		for(i=0;i<16;i++)
+		{
+			j = (unsigned char)crypt[i];
+			fputc(j,cFile);
+		}
+	}
+	fclose(oFile);
+	fclose(cFile);
+	*/
+	AESEncrypt(data,crypt,word);
+	printHex(crypt);
+	AESDecrypt(data,crypt,word);
+	printHex(data);
 	getch();
 }

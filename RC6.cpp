@@ -109,19 +109,26 @@ void RC6Decrypt(char C[16], char M[16], unsigned long S[2*r+4])
 	}
 }
 
+void print16(char *str)
+{
+	for(int i=0;i<16;i++)
+		cout<<str[i];
+}
+
+
 void main()
 {
 	clrscr();
-	int i;
+	int i,flag=1,j,val=1;
 	cout<<"\n\tRC6";
-	char key[16],msg[16],crypt[16];
+	char key[16],data[16],crypt[16],ch;
 	unsigned long S[2*r+4];
 	strcpy(key,"0123456789012345");
 	//memset(key,0,16);
 	cout<<"\n\tChosen key is ";
 	for(i=0;i<16;i++)
 		cout<<key[i];
-	cout<<"\n\tMsg is ";
+	/*cout<<"\n\tMsg is ";
 	strcpy(msg,"Bhavesh is a bad");
 	for(i=0;i<16;i++)
 		cout<<msg[i];
@@ -133,6 +140,84 @@ void main()
 	RC6Decrypt(crypt,msg,S);
 	cout<<"\n\tMsg is \n\t";
 	for(i=0;i<16;i++)
-		cout<<msg[i];
+		cout<<msg[i];*/
+
+	FILE *oFile,*cFile;
+	oFile = fopen("test.txt","rb");
+	cFile = fopen("cryptRC6.dat","wb");
+
+	while(flag)
+	{
+		ch=fgetc(oFile);
+		i=0;
+		while(ch!=EOF)
+		{
+			cout<<ch;
+			data[i++]=ch;
+			if(i==16)
+				break;
+			ch=fgetc(oFile);
+		}
+		if(i==0)
+			break;
+		else if(i<16)
+		{
+			flag=0;
+			for(;i<16;i++)
+				data[i]=0;
+		}
+		RC6Encrypt(crypt,data,S);
+		for(i=0;i<16;i++)
+		{
+			j = (unsigned char)crypt[i];
+			fputc(j,cFile);
+		}
+	}
+	fclose(oFile);
+	fclose(cFile);
+
+
+
+
+
+
+	cFile = fopen("cryptRC6.dat","rb");
+	flag=1;
+	oFile = fopen("test1.txt","wb");
+	fseek(oFile,0,SEEK_SET);
+	fseek(cFile,0,SEEK_SET);
+
+	while(flag)
+	{
+		memset(crypt,0,16);
+		i=0;
+		while(val != EOF)
+		{
+			val = fgetc(cFile);
+			if(val == EOF)
+				flag=0;
+			else
+				crypt[i++] = (unsigned char)val;
+			if(i==16)
+				break;
+		}
+		RC6Decrypt(crypt,data,S);
+
+		if(flag)
+		{
+			print16(data);
+
+			for(int i=0;i<16;i++)
+			{
+				if(data[i])
+					fputc(data[i],oFile);
+			}
+		}
+	}
+	fclose(cFile);
+	fclose(oFile);
+
+
+
 	getch();
 }

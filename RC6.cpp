@@ -2,6 +2,7 @@
 #include<conio.h>
 #include<string.h>
 #include<stdio.h>
+#include<math.h>
 
 const int w = 32, r = 20, b = 16;
 const unsigned long P = 0xB7E15163, Q = 0x9E3779B9;
@@ -47,14 +48,16 @@ void RC6Encrypt(char C[16], char M[16], unsigned long S[2*r+4])
 	{
 		A[i]=0;
 		for(j=0;j<4;j++)
-			A[i] += (unsigned long)((int)M[4*i+j])<<(8*j);
+			A[i] += (unsigned long)((int)(unsigned char)M[4*i+j])<<(8*j);
+		//cout<<"\tA["<<dec<<i<<"] is "<<hex<<A[i]<<endl;
 	}
 	A[1]+=S[0];
 	A[3]+=S[1];
 	for(i=1;i<=r;i++)
 	{
-		t = Rol(A[1]*(A[1]<<1 + 1),5);
-		u = Rol(A[3]*(A[3]<<1 + 1),5);
+		//cout<<"\n\tRound "<<dec<<i;
+		t = Rol((A[1]*(A[1]*2 + 1)),5);
+		u = Rol((A[3]*(A[3]*2 + 1)),5);
 		A[0] = Rol((A[0]^t),u&31) + S[2*i];
 		A[2] = Rol((A[2]^u),t&31) + S[2*i+1];
 		t=A[0];
@@ -79,38 +82,26 @@ void RC6Decrypt(char C[16], char M[16], unsigned long S[2*r+4])
 	{
 		A[i]=0;
 		for(j=0;j<4;j++)
-			A[i] += (unsigned long)((int)C[4*i+j])<<(8*j);
+			A[i] += (unsigned long)((int)(unsigned char)C[4*i+j])*pow(2,8*j);
+		//cout<<"\tA["<<dec<<i<<"] is "<<hex<<A[i]<<endl;
 	}
 	A[2]-=S[2*r + 3];
-	if(A[2]<0)
-		A[2]+=0xffffffff;
 	A[0]-=S[2*r + 2];
-	if(A[0]<0)
-		A[0]+=0xffffffff;
 	for(i=r;i>=1;i--)
 	{
-		t=A[3];
-		A[3]=A[0];
-		A[0]=A[1];
-		A[1]=A[2];
-		A[2]=t;
-		u = Rol(A[3]*(A[3]<<1 + 1),5);
-		t = Rol(A[1]*(A[1]<<1 + 1),5);
-		A[2] = A[2] - S[2*i + 1];
-		if(A[2]<0)
-			A[2]+=0xffffffff;
-		A[2] = Ror(A[2],t&31) ^ u;
-		A[0] = A[0] - S[2*i];
-		if(A[0]<0)
-			A[0]+=0xffffffff;
-		A[0] = Ror(A[0],u&31) ^ t;
+		//cout<<"\n\tRound "<<dec<<21-i;
+		t=A[0];
+		A[0]=A[3];
+		A[3]=A[2];
+		A[2]=A[1];
+		A[1]=t;
+		u = Rol((A[3]*(A[3]*2 + 1)),5);
+		t = Rol((A[1]*(A[1]*2 + 1)),5);
+		A[2] = Ror((A[2] - S[2*i + 1]),t&31) ^ u;
+		A[0] = Ror((A[0] - S[2*i]),u&31) ^ t;
 	}
 	A[3] = A[3] - S[1];
-	if(A[3]<0)
-		A[3]+=0xffffffff;
 	A[1] = A[1] - S[0];
-	if(A[1]<0)
-		A[1]+=0xffffffff;
 	for(i=0;i<16;i++)
 	{
 		M[i] = (unsigned char)A[i/4];
@@ -126,25 +117,22 @@ void main()
 	char key[16],msg[16],crypt[16];
 	unsigned long S[2*r+4];
 	strcpy(key,"0123456789012345");
-	memset(key,0,16);
+	//memset(key,0,16);
 	cout<<"\n\tChosen key is ";
 	for(i=0;i<16;i++)
-		cout<<hex<<(int)key[i]<<" ";
+		cout<<key[i];
 	cout<<"\n\tMsg is ";
-	memset(msg,0,16);
+	strcpy(msg,"Bhavesh is a bad");
 	for(i=0;i<16;i++)
-		cout<<hex<<(int)msg[i];
+		cout<<msg[i];
 	keySched(key,S);
-	cout<<"\n\tKeys are";
-	for(i=0;i<2*r+4;i++)
-		cout<<"\n\t"<<dec<<i+1<<" "<<hex<<S[i];
 	RC6Encrypt(crypt,msg,S);
 	cout<<"\n\tEncrypted Msg is \n\t";
 	for(i=0;i<16;i++)
-		cout<<hex<<(int)(unsigned char)crypt[i]<<" ";
-	cout<<"\n\tMsg is \n\t";
+		cout<<(unsigned char)crypt[i];
 	RC6Decrypt(crypt,msg,S);
+	cout<<"\n\tMsg is \n\t";
 	for(i=0;i<16;i++)
-		cout<<hex<<(int)(unsigned char)msg[i]<<" ";
+		cout<<msg[i];
 	getch();
 }

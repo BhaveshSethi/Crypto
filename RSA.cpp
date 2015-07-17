@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<math.h>
+#include<time.h>
 
 int p = 13;
 int q = 17;
@@ -38,6 +39,9 @@ void main()
 
 	cout<<"\n\tEncrypting..";
 
+	cout<<"\n\tEncryption starts ";
+	clock_t c1 = clock();
+
 	while(ch!=EOF)
 	{
 		ch=fgetc(oFile);
@@ -49,6 +53,13 @@ void main()
 	}
 	fclose(oFile);
 	fclose(cFile);
+
+	cout<<"\n\tEncryption Ends ";
+	clock_t c2=clock();
+	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
+
+	cout<<"\n\tNow Decrypting ";
+	c1=clock();
 
 	cout<<"\n\tDone\n\tNow Deciphering.. ";
 	oFile = fopen("test1.txt","wb");
@@ -67,6 +78,9 @@ void main()
 	fclose(cFile);
 
 	cout<<"\n\tDone";
+	c2 = clock();
+	cout<<"\n\tDecrypting done";
+	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
 
 	getch();
 }

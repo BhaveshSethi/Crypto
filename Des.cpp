@@ -46,9 +46,11 @@ void printMatrix(int *M, int m, int n)
 		cout<<endl;
 	}
 }
-void PCkey(int M[7][8], int PM[7][8],int mode)
+void PCkey(char K[7], char PK[7],int mode)
 {
 //	printMatrix((int*)&M,7,8);
+	int M[7][8],PM[7][8];
+	strToMatrix(K,M,7);
 	for(int i=0;i<7;i++)
 		for(int j=0;j<8;j++)
 		{
@@ -57,6 +59,7 @@ void PCkey(int M[7][8], int PM[7][8],int mode)
 			else
 				PM[ (PC1[i][j]-1)/8  ][ (PC1[i][j]-1)%8  ] = M[i][j];
 		}
+	matrixToStr(PK,PM,7);
 }
 void PCmsg(int M[8][8], int PM[8][8],int mode)
 {
@@ -113,12 +116,123 @@ void XOR84(int R[8][4],int key[8][4])
 		for(int j=0;j<4;j++)
 			R[i][j] = R[i][j] ^ key[i][j];
 }
+
+void DESencrypt(char data[8], int k[16][8][6])
+{
+	int M[8][8],PM[8][8],j,l,R[8][6],T[8][4],B[8][4];
+	strToMatrix(data,M,8);
+	PCmsg(M,PM,0);
+	for(j=0;j<16;j++)
+	{
+		expand(PM,R);
+		//printMatrix((int*)&R,8,6);
+		XOR86(R,k[j]);
+		//printMatrix((int*)&R,8,6);
+		for(l=0;l<8;l++)
+		{
+			int m = 2*R[l][0] + R[l][5];
+			int n = 8*R[l][1] + 4*R[l][2] + 2*R[l][3] + R[l][4];
+			int val = S[l][m][n];
+			for(int o=0;o<4;o++)
+			{
+				T[l][3-o] = val%2;
+				val/=2;
+			}
+		}
+		//printMatrix((int*)&T,8,4);
+		for(l=0;l<32;l++)
+    /*B contains R*/		B[l/4][l%4] = T[(P[l/4][l%4]-1)/4][(P[l/4][l%4]-1)%4];
+		//printMatrix((int*)&B,8,4);
+		for(l=0;l<32;l++)
+    /*T contains L*/		T[l/4][l%4] = PM[l/8][l%8];
+		//printMatrix((int*)&T,8,4);
+		/*T will contain Li-1 xor f(Ri-1,Ki)*/
+		XOR84(T,B);
+		//printMatrix((int*)&T,8,4);
+		for(l=0;l<32;l++)
+		{
+			PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
+			PM[(32+l)/8][(32+l)%8] = T[l/4][l%4];
+		}
+		//printMatrix((int*)&PM,8,8);
+     //		printMatrix((int*)&PM,8,8);
+     //		cout<<"\n\tPass "<<j+1<<" done!!";
+	}
+	//printMatrix((int*)&PM,8,8);
+	for(l=0;l<32;l++)
+	{
+		j = PM[l/8][l%8];
+		PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
+		PM[(32+l)/8][(32+l)%8] = j;
+	}
+	//printMatrix((int*)&PM,8,8);
+	for(l=0;l<64;l++)
+		M[l/8][l%8] = PM[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8];
+	for(l=0;l<64;l++)
+		PM[l/8][l%8] = M[l/8][l%8];
+	matrixToStr(data,PM,8);
+}
+void DESdecrypt(char data[8], int k[16][8][6])
+{
+	int M[8][8],PM[8][8],j,l,R[8][6],T[8][4],B[8][4];
+	strToMatrix(data,M,8);
+	PCmsg(M,PM,0);
+	matrixToStr(data,PM,8);
+	for(j=0;j<16;j++)
+	{
+		expand(PM,R);
+		//printMatrix((int*)&R,8,6);
+		XOR86(R,k[15-j]);
+		//printMatrix((int*)&R,8,6);
+		for(l=0;l<8;l++)
+		{
+			int m = 2*R[l][0] + R[l][5];
+			int n = 8*R[l][1] + 4*R[l][2] + 2*R[l][3] + R[l][4];
+			int val = S[l][m][n];
+			for(int o=0;o<4;o++)
+			{
+				T[l][3-o] = val%2;
+				val/=2;
+			}
+		}
+		//printMatrix((int*)&T,8,4);
+		for(l=0;l<32;l++)
+    /*B ontains R*/		B[l/4][l%4] = T[(P[l/4][l%4]-1)/4][(P[l/4][l%4]-1)%4];
+		//printMatrix((int*)&B,8,4);
+		for(l=0;l<32;l++)
+    /*T ontains L*/		T[l/4][l%4] = PM[l/8][l%8];
+		//printMatrix((int*)&T,8,4);
+		/*T will contain Li-1 xor f(Ri-1,Ki)*/
+		XOR84(T,B);
+		//printMatrix((int*)&T,8,4);
+		for(l=0;l<32;l++)
+		{
+			PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
+			PM[(32+l)/8][(32+l)%8] = T[l/4][l%4];
+		}
+		//printMatrix((int*)&PM,8,8);
+     //		printMatrix((int*)&PM,8,8);
+     //		cout<<"\n\tPass "<<j+1<<" done!!";
+	}
+	//printMatrix((int*)&PM,8,8);
+	for(l=0;l<32;l++)
+	{
+		j = PM[l/8][l%8];
+		PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
+		PM[(32+l)/8][(32+l)%8] = j;
+	}
+	for(l=0;l<64;l++)
+		M[l/8][l%8] = PM[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8];
+	for(l=0;l<64;l++)
+		PM[l/8][l%8] = M[l/8][l%8];
+	matrixToStr(data,PM,8);
+}
 void main()
 {
 	clrscr();
 	unsigned long mark=0;
 	char msg[80],Key[7],Pkey[7],data[8],ch;
-	int i,j,l,val,k[16][8][6],len,K[7][8],PK[7][8],M[8][8],PM[8][8],R[8][6],T[8][4],B[8][4],Temp[8][8];
+	int i,val,k[16][8][6],j,K[7][8],PK[7][8];
 	cout<<"\n\tCrptyo 1.0";
 	cout<<"\n\tEnter Your Key:\n\t";
    /*	gets(Key);
@@ -129,11 +243,11 @@ void main()
 	}                   */
 	strcpy(Key,"BHAVESH");
 	puts(Key);
-	strToMatrix(Key,K,7);
+	//strToMatrix(Key,K,7);
 	//printMatrix((int*)&K,7,8);
-	PCkey(K,PK,0);
+	PCkey(Key,Pkey,0);
 	//printMatrix((int*)PK,7,8);
-	matrixToStr(Pkey,PK,7);
+	//matrixToStr(Pkey,PK,7);
 	cout<<"\n\tReceived: \n\t"<<Pkey;
 	for(i=0;i<7;i++)
 		cout<<i;
@@ -145,10 +259,6 @@ void main()
 	matrixToStr(Key,K,7);
 	cout<<"\n\tReceived Key: ";*/
 	cout<<"\n\tEnter your Message \n\t";
-	//gets(msg);
-     //	strcpy(msg,"hello br");
-	len = strlen(msg);
-	//TODO 2: implement outer for loop 16 times
 	for(i=0;i<16;i++)
 		genKey_i(PK,k,i);
 	int flag=1;
@@ -156,7 +266,7 @@ void main()
 //	for(i=0;i<len;i+=8)
 
 	FILE *oFile,*cFile;
-	oFile = fopen("testy.txt","rb");
+	oFile = fopen("test.txt","rb");
 	cFile = fopen("crypt.dat","wb");
 
 	cout<<"\n\tEncryption starts ";
@@ -186,57 +296,7 @@ void main()
 			for(;j<8;j++)
 				data[j] = 0;
 		}
-		strToMatrix(data,M,8);
-		PCmsg(M,PM,0);
-		for(j=0;j<16;j++)
-		{
-			expand(PM,R);
-			//printMatrix((int*)&R,8,6);
-			XOR86(R,k[j]);
-			//printMatrix((int*)&R,8,6);
-			for(l=0;l<8;l++)
-			{
-				int m = 2*R[l][0] + R[l][5];
-				int n = 8*R[l][1] + 4*R[l][2] + 2*R[l][3] + R[l][4];
-				int val = S[l][m][n];
-				for(int o=0;o<4;o++)
-				{
-					T[l][3-o] = val%2;
-					val/=2;
-				}
-			}
-			//printMatrix((int*)&T,8,4);
-			for(l=0;l<32;l++)
-    /*B contains R*/		B[l/4][l%4] = T[(P[l/4][l%4]-1)/4][(P[l/4][l%4]-1)%4];
-			//printMatrix((int*)&B,8,4);
-			for(l=0;l<32;l++)
-    /*T contains L*/		T[l/4][l%4] = PM[l/8][l%8];
-			//printMatrix((int*)&T,8,4);
-			/*T will contain Li-1 xor f(Ri-1,Ki)*/
-			XOR84(T,B);
-			//printMatrix((int*)&T,8,4);
-			for(l=0;l<32;l++)
-			{
-				PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
-				PM[(32+l)/8][(32+l)%8] = T[l/4][l%4];
-			}
-			//printMatrix((int*)&PM,8,8);
-     //			printMatrix((int*)&PM,8,8);
-     //			cout<<"\n\tPass "<<j+1<<" done!!";
-		}
-		//printMatrix((int*)&PM,8,8);
-		for(l=0;l<32;l++)
-		{
-			j = PM[l/8][l%8];
-			PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
-			PM[(32+l)/8][(32+l)%8] = j;
-		}
-		//printMatrix((int*)&PM,8,8);
-		for(l=0;l<64;l++)
-			M[l/8][l%8] = PM[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8];
-		for(l=0;l<64;l++)
-			PM[l/8][l%8] = M[l/8][l%8];
-		matrixToStr(data,PM,8);
+		DESencrypt(data,k);
 		for(j=0;j<8;j++)
 		{
 			//cout<<data[j];
@@ -261,8 +321,12 @@ void main()
 	fseek(cFile,0,SEEK_SET);
 
 	val=1;
+	mark=0;
 	while(flag)
 	{
+		mark++;
+		if(mark%100000==0)
+			cout<<"|";
 		memset(data,0,8);
 		i=0;
 		while(val!=EOF)
@@ -277,61 +341,10 @@ void main()
 		}
 		if(!flag)
 			break;
-		strToMatrix(data,M,8);
-		PCmsg(M,PM,0);
-		PCmsg(PM,M,1);
-		matrixToStr(data,PM,8);
-		for(j=0;j<16;j++)
+		DESdecrypt(data,k);
+		for(int l=0;l<8;l++)
 		{
-			expand(PM,R);
-			//printMatrix((int*)&R,8,6);
-			XOR86(R,k[15-j]);
-			//printMatrix((int*)&R,8,6);
-			for(l=0;l<8;l++)
-			{
-				int m = 2*R[l][0] + R[l][5];
-				int n = 8*R[l][1] + 4*R[l][2] + 2*R[l][3] + R[l][4];
-				int val = S[l][m][n];
-				for(int o=0;o<4;o++)
-				{
-					T[l][3-o] = val%2;
-					val/=2;
-				}
-			}
-			//printMatrix((int*)&T,8,4);
-			for(l=0;l<32;l++)
-    /*B contains R*/		B[l/4][l%4] = T[(P[l/4][l%4]-1)/4][(P[l/4][l%4]-1)%4];
-			//printMatrix((int*)&B,8,4);
-			for(l=0;l<32;l++)
-    /*T contains L*/		T[l/4][l%4] = PM[l/8][l%8];
-			//printMatrix((int*)&T,8,4);
-			/*T will contain Li-1 xor f(Ri-1,Ki)*/
-			XOR84(T,B);
-			//printMatrix((int*)&T,8,4);
-			for(l=0;l<32;l++)
-			{
-				PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
-				PM[(32+l)/8][(32+l)%8] = T[l/4][l%4];
-			}
-			//printMatrix((int*)&PM,8,8);
-     //			printMatrix((int*)&PM,8,8);
-     //			cout<<"\n\tPass "<<j+1<<" done!!";
-		}
-		//printMatrix((int*)&PM,8,8);
-		for(l=0;l<32;l++)
-		{
-			j = PM[l/8][l%8];
-			PM[l/8][l%8] = PM[(32+l)/8][(32+l)%8];
-			PM[(32+l)/8][(32+l)%8] = j;
-		}
-		for(l=0;l<64;l++)
-			M[l/8][l%8] = PM[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8];
-		for(l=0;l<64;l++)
-			PM[l/8][l%8] = M[l/8][l%8];
-		matrixToStr(data,PM,8);
-		for(l=0;l<8;l++)
-		{
-			cout<<data[l];
+			//cout<<data[l];
 			if(data[l])
 				fputc(data[l],oFile);
 		}

@@ -1,4 +1,4 @@
-cp ../blowfish.cpp blowfish.cpp
+cp ../blowfish.cpp BF.cpp
 cp ../Des.cpp Des.cpp
 cp ../AES.cpp AES.cpp
 cp ../RSA.cpp RSA.cpp

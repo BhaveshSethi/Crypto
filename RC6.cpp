@@ -3,6 +3,7 @@
 #include<string.h>
 #include<stdio.h>
 #include<math.h>
+#include<time.h>
 
 const int w = 32, r = 20, b = 16;
 const unsigned long P = 0xB7E15163, Q = 0x9E3779B9;
@@ -146,13 +147,16 @@ void main()
 	oFile = fopen("test.txt","rb");
 	cFile = fopen("cryptRC6.dat","wb");
 
+	cout<<"\n\tEncryption starts ";
+	clock_t c1 = clock();
+
 	while(flag)
 	{
 		ch=fgetc(oFile);
 		i=0;
 		while(ch!=EOF)
 		{
-			cout<<ch;
+			//cout<<ch;
 			data[i++]=ch;
 			if(i==16)
 				break;
@@ -186,6 +190,12 @@ void main()
 	oFile = fopen("test1.txt","wb");
 	fseek(oFile,0,SEEK_SET);
 	fseek(cFile,0,SEEK_SET);
+	cout<<"\n\tEncryption Ends ";
+	clock_t c2=clock();
+	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
+
+	cout<<"\n\tNow Decrypting ";
+	c1=clock();
 
 	while(flag)
 	{
@@ -205,7 +215,7 @@ void main()
 
 		if(flag)
 		{
-			print16(data);
+			//print16(data);
 
 			for(int i=0;i<16;i++)
 			{
@@ -217,6 +227,9 @@ void main()
 	fclose(cFile);
 	fclose(oFile);
 
+	c2 = clock();
+	cout<<"\n\tDecrypting done";
+	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
 
 
 	getch();

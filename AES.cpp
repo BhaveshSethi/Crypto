@@ -3,7 +3,7 @@
 #include<stdio.h>
 #include<iomanip.h>
 #include<aestable.h>
-
+#include<time.h>
 
 void SubWord(unsigned char *word, int n, int mode)
 {
@@ -188,13 +188,16 @@ void main()
 	oFile = fopen("test.txt","rb");
 	cFile = fopen("cryptAES.dat","wb");
 
+	cout<<"\n\tEncryption starts ";
+	clock_t c1 = clock();
+
 	while(flag)
 	{
 		ch=fgetc(oFile);
 		i=0;
 		while(ch!=EOF)
 		{
-			cout<<ch;
+			//cout<<ch;
 			data[i++]=ch;
 			if(i==16)
 				break;
@@ -219,9 +222,12 @@ void main()
 	fclose(cFile);
 
 
+	cout<<"\n\tEncryption Ends ";
+	clock_t c2=clock();
+	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
 
-
-
+	cout<<"\n\tNow Decrypting ";
+	c1=clock();
 
 	cFile = fopen("cryptAES.dat","rb");
 	flag=1;
@@ -247,7 +253,7 @@ void main()
 
 		if(flag)
 		{
-			print16(data);
+			//print16(data);
 
 			for(int i=0;i<16;i++)
 			{
@@ -259,8 +265,9 @@ void main()
 	fclose(cFile);
 	fclose(oFile);
 
-
-
+	c2 = clock();
+	cout<<"\n\tDecrypting done";
+	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
 
 
 

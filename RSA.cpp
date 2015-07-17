@@ -44,7 +44,7 @@ void main()
 		if(ch==EOF)
 			break;
 		ch1 = char(power((int)ch,e,n));
-		cout<<ch;
+		//cout<<ch;
 		fputc(ch1,cFile);
 	}
 	fclose(oFile);
@@ -60,7 +60,7 @@ void main()
 		if(ch==EOF)
 			break;
 		ch1 = (char)(power((int)(unsigned char)ch,d,n));
-		cout<<ch1;
+		//cout<<ch1;
 		fputc(ch1,oFile);
 	}
 	fclose(oFile);

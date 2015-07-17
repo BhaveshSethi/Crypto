@@ -4,6 +4,7 @@
 #include<string.h>
 #include<stdio.h>
 #include<bftable.h>
+#include<time.h>
 
 void strToInt(unsigned long int *xL, unsigned long int *xR, unsigned char str[8])
 {
@@ -90,7 +91,7 @@ void print8(char *str)
 }
 void main()
 {
-//	clrscr();
+	clrscr();
 	cout<<"\n\tBlowFish\n\tGenerating Keys";
 	int i,j,k=0,flag,val;
 	unsigned long int x,kL,kR;
@@ -101,7 +102,7 @@ void main()
 	//f.open("crypt1.dat",ios::out | ios::trunc);
 	cFile = fopen("cryptBF.dat","wb");//crypt file
 	strcpy(key,"blowfish");
-	cout<<"\n\tEnter Msg \n\t";
+//	cout<<"\n\tEnter Msg \n\t";
 //	gets(msg);
 //	cout<<msg;
 //	cout<<"\n\tMsg is "<<msg<<" of length "<<strlen(msg);
@@ -152,6 +153,8 @@ void main()
 	fseek(cFile,0,SEEK_SET);
 	char ch='1';
 //	for(i=0;i<len;i+=8)
+	cout<<"\n\tEncryption starts";
+	clock_t c1 = clock();
 	len=0;
 	while(flag)
 	{
@@ -161,7 +164,7 @@ void main()
 		//data[j]=ch;
 		while(ch!=EOF)
 		{
-			cout<<ch;
+			//cout<<ch;
 			data[j++]=ch;
 			if(j==8)
 				break;
@@ -213,6 +216,9 @@ void main()
 	}
 	fclose(cFile);
 	fclose(oFile);
+	cout<<"\n\tEncryption Ends ";
+	clock_t c2 = clock();
+	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
 	cFile = fopen("cryptBF.dat","rb");
 	flag=1;
 	oFile = fopen("test1.txt","wb");
@@ -220,6 +226,8 @@ void main()
 	fseek(cFile,0,SEEK_SET);
 	ch='0';
 	len=0;
+	c1=clock();
+	cout<<"\n\tNow Decrypting ";
 	while(flag)
 	{
 		memset(crypt,0,8);
@@ -243,7 +251,7 @@ void main()
 		len+=8;
 		if(flag)
 		{
-			print8(data);
+			//print8(data);
 			//cout<<len;
 			for(int i=0;i<8;i++)
 			{
@@ -254,6 +262,10 @@ void main()
 	}
 	fclose(cFile);
 	fclose(oFile);
+
+	c2 = clock();
+	cout<<"\n\tDecrypting done";
+	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
 //	print8(data);fgetc
 	cout<<"done";
 	getch();

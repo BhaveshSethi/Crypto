@@ -6,6 +6,7 @@
 #include<string.h>
 #include<iomanip.h>
 #include<destable.h>
+#include<time.h>
 
 void strToMatrix(char *str,int M[][8],int n)
 {
@@ -13,7 +14,6 @@ void strToMatrix(char *str,int M[][8],int n)
 	for(i=0;i<n;i++)
 	{
 		ch = (int)((unsigned char)str[i]);
-       //		cout<<"\n\tChar "<<str[i]<<" has a value "<<ch;
 		for(j=0;j<8;j++)
 		{
 			M[i][7-j] = ch%2;
@@ -57,8 +57,6 @@ void PCkey(int M[7][8], int PM[7][8],int mode)
 			else
 				PM[ (PC1[i][j]-1)/8  ][ (PC1[i][j]-1)%8  ] = M[i][j];
 		}
-	cout<<endl;
-	//printMatrix(PM,7);
 }
 void PCmsg(int M[8][8], int PM[8][8],int mode)
 {
@@ -107,23 +105,22 @@ void XOR86(int R[8][6],int key[8][6])
 {
 	for(int i=0;i<8;i++)
 		for(int j=0;j<6;j++)
-			R[i][j] = (R[i][j] == key[i][j])?0:1;
+			R[i][j] = R[i][j] ^ key[i][j];
 }
 void XOR84(int R[8][4],int key[8][4])
 {
 	for(int i=0;i<8;i++)
 		for(int j=0;j<4;j++)
-			R[i][j] = (R[i][j] == key[i][j])?0:1;
+			R[i][j] = R[i][j] ^ key[i][j];
 }
 void main()
 {
 	clrscr();
+	unsigned long mark=0;
 	char msg[80],Key[7],Pkey[7],data[8],ch;
 	int i,j,l,val,k[16][8][6],len,K[7][8],PK[7][8],M[8][8],PM[8][8],R[8][6],T[8][4],B[8][4],Temp[8][8];
 	cout<<"\n\tCrptyo 1.0";
 	cout<<"\n\tEnter Your Key:\n\t";
-	fstream f;
-	f.open("crypt.txt",ios::out | ios::trunc);
    /*	gets(Key);
 	while(strlen(Key) != 7)
 	{
@@ -153,66 +150,45 @@ void main()
 	len = strlen(msg);
 	//TODO 2: implement outer for loop 16 times
 	for(i=0;i<16;i++)
-	{
 		genKey_i(PK,k,i);
-      //		cout<<"\n\tOriginal Shifted Key \n";
-		//printMatrix((int*)&PK,7,8);
-      //		cout<<"\n\tKey "<<i<<":";
-      //		printMatrix((int*)&k[i],8,6);
-	}
-	ifstream fi;
-	fi.open("test.txt",ios::in | ios::binary);
 	int flag=1;
 	cout<<"\n\tCrypt Formed\n\t";
 //	for(i=0;i<len;i+=8)
+
+	FILE *oFile,*cFile;
+	oFile = fopen("testy.txt","rb");
+	cFile = fopen("crypt.dat","wb");
+
+	cout<<"\n\tEncryption starts ";
+	clock_t c1 = clock();
+
 	while(flag)
 	{
-		//***************************************
-		//Reading and Encrypting a file
-
-		fi>>ch;
+		mark++;
+		if(mark%100000==0)
+			cout<<"|";
+		ch=fgetc(oFile);
 		j=0;
-		//cout<<ch;
-		data[j]=ch;
-		while(!fi.eof())
+		while(ch!=EOF)
 		{
-			fi>>ch;
 			//cout<<ch;
-			data[++j]=ch;
-			if(j==7)
+			data[j++]=ch;
+			if(j==8)
 				break;
+			ch=fgetc(oFile);
 		}
-//		fi.close();
+		if(i==0)
+			break;
 
-
-		//***************************************
-
-		if(j < 7)
+		else if(j < 8)
 		{
-//			for(j=0;j< len -i ;j++)
-//				data[j] = msg[i+j];
 			flag=0;
-			j++;
 			for(;j<8;j++)
 				data[j] = 0;
 		}
-/*		else
-		{
-			for(j=0;j<8;j++)
-				data[j] = msg[i+j];
-		}
-*/	//	cout<<"\n\tData: "<<data;
 		strToMatrix(data,M,8);
 		PCmsg(M,PM,0);
-		PCmsg(PM,M,1);
-		//printMatrix((int*)&M,8,8);
-		//printMatrix((int*)&PM,8,8);
-		matrixToStr(data,PM,8);
-	//	cout<<"\n\tReceived Data: ";
-	/*	for(int h=0;h<8;h++)
-			cout<<data[h];
-		cout<<" with length "<<strlen(data)<<endl;
-	*/	for(j=0;j<16;j++)
+		for(j=0;j<16;j++)
 		{
 			expand(PM,R);
 			//printMatrix((int*)&R,8,6);
@@ -265,66 +241,47 @@ void main()
 		{
 			//cout<<data[j];
 			val = (unsigned char)data[j];
-			f<<setw(4)<<val;
+			fputc(val,cFile);
 //			f<<data[j];
 		}
 	}
-	fi.close();
-	f.close();
-	f.open("crypt.txt",ios::in | ios::binary);
+	fclose(oFile);
+	fclose(cFile);
+	cout<<"\n\tEncryption Ends ";
+	clock_t c2=clock();
+	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
+
+	cout<<"\n\tNow Decrypting \n\t";
+	c1=clock();
+
+	cFile = fopen("crypt.dat","rb");
 	flag=1;
-	cout<<"\n\n\tNow Deciphering... ";
-/*	i=0;
-	f>>val;
-	memset(msg,0,sizeof(msg));
-	while(!f.eof())
-	{
-		//cout<<(char)val<<" ";
-		msg[i++] = (char)val;
-		f>>val;
-	}
-	len = i;
-	cout<<"\n\n\tCrypt of length "<<len<<":\n\t";
-	for(i=0;i<len;i++)
-		cout<<msg[i];
-*/	cout<<"\n\n\tPlain Message:\n\t";
-//	for(i=0;i<len;i+=8)
+	oFile = fopen("test1.txt","wb");
+	fseek(oFile,0,SEEK_SET);
+	fseek(cFile,0,SEEK_SET);
+
+	val=1;
 	while(flag)
 	{
 		memset(data,0,8);
 		i=0;
-		while(!f.eof())
+		while(val!=EOF)
 		{
-			f>>val;
-			data[i++] = (char)val;
-			if(f.eof())
+			val = fgetc(cFile);
+			if(val==EOF)
 				flag=0;
+			else
+				data[i++] = (unsigned char)val;
 			if(i==8)
 				break;
 		}
-	    /*	for(j=0;j<8;j++)
-			data[j] = msg[i+j];
-	  */  //	strToMatrix(data,PM,8);
-	    /*	for(l=0;l<64;l++)
-			M[(FP[l/8][l%8]-1)/8][(FP[l/8][l%8]-1)%8] = PM[l/8][l%8];
-		for(l=0;l<64;l++)
-			PM[l/8][l%8] = M[l/8][l%8];
-		//printMatrix((int*)&PM,8,8);
-		for(j=15;j>=0;j--)
-		{
-
-		}    */
+		if(!flag)
+			break;
 		strToMatrix(data,M,8);
 		PCmsg(M,PM,0);
 		PCmsg(PM,M,1);
-		//printMatrix((int*)&M,8,8);
-		//printMatrix((int*)&PM,8,8);
 		matrixToStr(data,PM,8);
-	//	cout<<"\n\tReceived Data: ";
-	/*	for(int h=0;h<8;h++)
-			cout<<data[h];
-		cout<<" with length "<<strlen(data)<<endl;
-       */	for(j=0;j<16;j++)
+		for(j=0;j<16;j++)
 		{
 			expand(PM,R);
 			//printMatrix((int*)&R,8,6);
@@ -372,10 +329,18 @@ void main()
 		for(l=0;l<64;l++)
 			PM[l/8][l%8] = M[l/8][l%8];
 		matrixToStr(data,PM,8);
-	       //	for(l=0;l<8;l++)
-	       //		cout<<data[l];
+		for(l=0;l<8;l++)
+		{
+			cout<<data[l];
+			if(data[l])
+				fputc(data[l],oFile);
+		}
 	}
-	cout<<"done";
-	f.close();
+	fclose(oFile);
+	fclose(cFile);
+	c2 = clock();
+	cout<<"\n\tDecrypting done";
+	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
+
 	getch();
 }

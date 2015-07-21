@@ -46,20 +46,17 @@ void printMatrix(int *M, int m, int n)
 		cout<<endl;
 	}
 }
-void PCkey(char K[7], char PK[7],int mode)
+void PCkey(int K[7][8], int PK[7][8],int mode)
 {
 //	printMatrix((int*)&M,7,8);
-	int M[7][8],PM[7][8];
-	strToMatrix(K,M,7);
 	for(int i=0;i<7;i++)
 		for(int j=0;j<8;j++)
 		{
 			if(mode==0)
-				PM[i][j] = M[ (PC1[i][j]-1)/8  ][ (PC1[i][j]-1)%8  ];
+				PK[i][j] = K[ (PC1[i][j]-1)/8  ][ (PC1[i][j]-1)%8  ];
 			else
-				PM[ (PC1[i][j]-1)/8  ][ (PC1[i][j]-1)%8  ] = M[i][j];
+				PK[ (PC1[i][j]-1)/8  ][ (PC1[i][j]-1)%8  ] = K[i][j];
 		}
-	matrixToStr(PK,PM,7);
 }
 void PCmsg(int M[8][8], int PM[8][8],int mode)
 {
@@ -243,11 +240,11 @@ void main()
 	}                   */
 	strcpy(Key,"BHAVESH");
 	puts(Key);
-	//strToMatrix(Key,K,7);
+	strToMatrix(Key,K,7);
 	//printMatrix((int*)&K,7,8);
-	PCkey(Key,Pkey,0);
+	PCkey(K,PK,0);
 	//printMatrix((int*)PK,7,8);
-	//matrixToStr(Pkey,PK,7);
+	matrixToStr(Pkey,PK,7);
 	cout<<"\n\tReceived: \n\t"<<Pkey;
 	for(i=0;i<7;i++)
 		cout<<i;

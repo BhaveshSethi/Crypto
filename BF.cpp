@@ -89,12 +89,25 @@ void print8(char *str)
 	for(int i=0;i<8;i++)
 		cout<<str[i];
 }
+void expandKey(char key[20],unsigned long int P[18])
+{
+	int len=strlen(key),i,j,k=0;
+	unsigned long int x;
+	for(i=0;i<18;i++)
+	{
+		x=0;
+		for(j=0;j<=3;j++)
+			x += (unsigned long int)(key[(j + k)%len])<<((3-j)*8);
+		k = (k+4)%len;
+		P[i]^=x;
+	}
+}
 void main()
 {
 	clrscr();
 	cout<<"\n\tBlowFish\n\tGenerating Keys";
-	int i,j,k=0,flag,val;
-	unsigned long int x,kL,kR;
+	int i,j,flag,val;
+	unsigned long int kL,kR;
 	FILE *oFile, *cFile;
 	oFile = fopen("test.txt","rb");        //the file to be encrypted
 	char key[20],msg[80],data[8],crypt[8];
@@ -107,18 +120,7 @@ void main()
 //	cout<<msg;
 //	cout<<"\n\tMsg is "<<msg<<" of length "<<strlen(msg);
 //	msg[8]='\0';
-	int len=strlen(key);
-	for(i=0;i<18;i++)
-	{
-		x=0;
-		for(j=0;j<=3;j++)
-			x += (unsigned long int)(key[(j + k)%len])<<((3-j)*8);
-		//cout<<"\n\tk="<<k<<" x="<<x<<" P["<<i<<"]="<<P[i];
-		k = (k+4)%len;
-		P[i]^=x;
- //		cout<<"\n\tP["<<i<<"]="<<P[i]<<endl;
- //		getch();
-	}
+	expandKey(key,P);
 //	cout<<"\n\tMsg is ";
 //	print8(msg);
 
@@ -145,9 +147,6 @@ void main()
 			S[i][j+1] = kR;
 		}
 	}
-//	fi.open("crypt.txt",ios::in | ios::binary);
-	len = strlen(msg);
-	//memset(Cmsg,0,strlen(Cmsg));
 	flag=1;
 	fseek(oFile,0,SEEK_SET);
 	fseek(cFile,0,SEEK_SET);
@@ -155,7 +154,6 @@ void main()
 //	for(i=0;i<len;i+=8)
 	cout<<"\n\tEncryption starts";
 	clock_t c1 = clock();
-	len=0;
 	while(flag)
 	{
 		ch = fgetc(oFile);
@@ -199,10 +197,7 @@ void main()
 				data[j] = msg[i+j];
 		}    */
 		blowfish(crypt,data,0);
-		//memcpy((Cmsg+strlen(Cmsg)),crypt,8);
 
-		//print8(crypt);
-		len+=8;
 		for(j=0;j<8;j++)
 		{
 			val = (unsigned char)crypt[j];
@@ -225,7 +220,6 @@ void main()
 	fseek(oFile,0,SEEK_SET);
 	fseek(cFile,0,SEEK_SET);
 	ch='0';
-	len=0;
 	c1=clock();
 	cout<<"\n\tNow Decrypting ";
 	while(flag)
@@ -248,7 +242,6 @@ void main()
 		for(j=0;j<8;j++)
 			crypt[j] = Cmsg[i+j];*/
 		blowfish(crypt,data,1);
-		len+=8;
 		if(flag)
 		{
 			//print8(data);

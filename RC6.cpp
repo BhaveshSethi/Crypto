@@ -133,7 +133,6 @@ void main()
 	strcpy(msg,"Bhavesh is a bad");
 	for(i=0;i<16;i++)
 		cout<<msg[i];
-	keySched(key,S);
 	RC6Encrypt(crypt,msg,S);
 	cout<<"\n\tEncrypted Msg is \n\t";
 	for(i=0;i<16;i++)
@@ -143,6 +142,7 @@ void main()
 	for(i=0;i<16;i++)
 		cout<<msg[i];*/
 
+	keySched(key,S);
 	FILE *oFile,*cFile;
 	oFile = fopen("test.txt","rb");
 	cFile = fopen("cryptRC6.dat","wb");

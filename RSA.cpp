@@ -34,7 +34,7 @@ void main()
 	char ch=1,ch1;
 	cout<<"\n\tRSA ";
 	FILE *oFile,*cFile;
-	oFile = fopen("test.txt","rb");
+	oFile = fopen("testy.txt","rb");
 	cFile = fopen("cryptRSA.dat","wb");
 
 	cout<<"\n\tEncrypting..";

@@ -11,7 +11,7 @@ void SubWord(unsigned char *word, int n, int mode)
 	for(int i=0;i<n;i++)
 	{
 		val = word[i];
-		word[i] = (mode==0)?(unsigned char)S[val]:(unsigned char)inv_S[val];
+		word[i] = (mode==0)?(unsigned char)AES_S[val]:(unsigned char)inv_S[val];
 	}
 }
 

@@ -92,7 +92,7 @@ void print8(char *str)
 void expandKey(char key[20],unsigned long int P[18])
 {
 	int len=strlen(key),i,j,k=0;
-	unsigned long int x;
+	unsigned long int x,kL,kR;
 	for(i=0;i<18;i++)
 	{
 		x=0;
@@ -101,29 +101,6 @@ void expandKey(char key[20],unsigned long int P[18])
 		k = (k+4)%len;
 		P[i]^=x;
 	}
-}
-void main()
-{
-	clrscr();
-	cout<<"\n\tBlowFish\n\tGenerating Keys";
-	int i,j,flag,val;
-	unsigned long int kL,kR;
-	FILE *oFile, *cFile;
-	oFile = fopen("test.txt","rb");        //the file to be encrypted
-	char key[20],msg[80],data[8],crypt[8];
-	//fstream f;
-	//f.open("crypt1.dat",ios::out | ios::trunc);
-	cFile = fopen("cryptBF.dat","wb");//crypt file
-	strcpy(key,"blowfish");
-//	cout<<"\n\tEnter Msg \n\t";
-//	gets(msg);
-//	cout<<msg;
-//	cout<<"\n\tMsg is "<<msg<<" of length "<<strlen(msg);
-//	msg[8]='\0';
-	expandKey(key,P);
-//	cout<<"\n\tMsg is ";
-//	print8(msg);
-
 	char keyCrypt[8];
 	memset(keyCrypt,0,8);
 	for(i=0;i<18;i+=2)
@@ -147,6 +124,28 @@ void main()
 			S[i][j+1] = kR;
 		}
 	}
+}
+void main()
+{
+	clrscr();
+	cout<<"\n\tBlowFish\n\tGenerating Keys";
+	int i,j,flag,val;
+	FILE *oFile, *cFile;
+	oFile = fopen("test.txt","rb");        //the file to be encrypted
+	char key[20],msg[80],data[8],crypt[8];
+	//fstream f;
+	//f.open("crypt1.dat",ios::out | ios::trunc);
+	cFile = fopen("cryptBF.dat","wb");//crypt file
+	strcpy(key,"blowfish");
+//	cout<<"\n\tEnter Msg \n\t";
+//	gets(msg);
+//	cout<<msg;
+//	cout<<"\n\tMsg is "<<msg<<" of length "<<strlen(msg);
+//	msg[8]='\0';
+	expandKey(key,P);
+//	cout<<"\n\tMsg is ";
+//	print8(msg);
+
 	flag=1;
 	fseek(oFile,0,SEEK_SET);
 	fseek(cFile,0,SEEK_SET);

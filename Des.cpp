@@ -263,7 +263,7 @@ void main()
 //	for(i=0;i<len;i+=8)
 
 	FILE *oFile,*cFile;
-	oFile = fopen("test.txt","rb");
+	oFile = fopen("testy.txt","rb");
 	cFile = fopen("crypt.dat","wb");
 
 	cout<<"\n\tEncryption starts ";
@@ -296,7 +296,7 @@ void main()
 		DESencrypt(data,k);
 		for(j=0;j<8;j++)
 		{
-			//cout<<data[j];
+			cout<<data[j];
 			val = (unsigned char)data[j];
 			fputc(val,cFile);
 //			f<<data[j];
@@ -341,7 +341,7 @@ void main()
 		DESdecrypt(data,k);
 		for(int l=0;l<8;l++)
 		{
-			//cout<<data[l];
+			cout<<data[l];
 			if(data[l])
 				fputc(data[l],oFile);
 		}

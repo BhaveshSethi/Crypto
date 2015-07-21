@@ -132,7 +132,7 @@ void DESencrypt(char data[8], int k[16][8][6])
 		{
 			int m = 2*R[l][0] + R[l][5];
 			int n = 8*R[l][1] + 4*R[l][2] + 2*R[l][3] + R[l][4];
-			int val = S[l][m][n];
+			int val = DES_S[l][m][n];
 			for(int o=0;o<4;o++)
 			{
 				T[l][3-o] = val%2;
@@ -141,7 +141,7 @@ void DESencrypt(char data[8], int k[16][8][6])
 		}
 		//printMatrix((int*)&T,8,4);
 		for(l=0;l<32;l++)
-    /*B contains R*/		B[l/4][l%4] = T[(P[l/4][l%4]-1)/4][(P[l/4][l%4]-1)%4];
+    /*B contains R*/		B[l/4][l%4] = T[(DES_P[l/4][l%4]-1)/4][(DES_P[l/4][l%4]-1)%4];
 		//printMatrix((int*)&B,8,4);
 		for(l=0;l<32;l++)
     /*T contains L*/		T[l/4][l%4] = PM[l/8][l%8];
@@ -188,7 +188,7 @@ void DESdecrypt(char data[8], int k[16][8][6])
 		{
 			int m = 2*R[l][0] + R[l][5];
 			int n = 8*R[l][1] + 4*R[l][2] + 2*R[l][3] + R[l][4];
-			int val = S[l][m][n];
+			int val = DES_S[l][m][n];
 			for(int o=0;o<4;o++)
 			{
 				T[l][3-o] = val%2;
@@ -197,7 +197,7 @@ void DESdecrypt(char data[8], int k[16][8][6])
 		}
 		//printMatrix((int*)&T,8,4);
 		for(l=0;l<32;l++)
-    /*B ontains R*/		B[l/4][l%4] = T[(P[l/4][l%4]-1)/4][(P[l/4][l%4]-1)%4];
+    /*B ontains R*/		B[l/4][l%4] = T[(DES_P[l/4][l%4]-1)/4][(DES_P[l/4][l%4]-1)%4];
 		//printMatrix((int*)&B,8,4);
 		for(l=0;l<32;l++)
     /*T ontains L*/		T[l/4][l%4] = PM[l/8][l%8];

@@ -112,29 +112,18 @@ void AESEncrypt(char msg[16], char cipher[16], unsigned char w[44][4])
 	memset(cipher,0,16);
 	for(i=0;i<16;i++)
 		cipher[i] = msg[i]^w[i/4][i%4];         //Round 0
-	//printHex(cipher);
-
 	for(j=1;j<=9;j++)
 	{
-		//cout<<"\nRound "<<j;
 		SubWord(cipher,16,0);
-		//printHex(cipher);
 		ShiftRows(cipher,0);
-		//printHex(cipher);
 		MixCol(cipher);
-		//printHex(cipher);
 		for(i=0;i<16;i++)
 			cipher[i] ^= w[4*j + i/4][i%4];
-		//printHex(cipher);
 	}
-	//cout<<"\nRound 10";
 	SubWord(cipher,16,0);
-	//printHex(cipher);
 	ShiftRows(cipher,0);
-	//printHex(cipher);
 	for(i=0;i<16;i++)
 		cipher[i] ^= w[4*j + i/4][i%4];
-	//printHex(cipher);
 }
 void AESDecrypt(char msg[16], char cipher[16], unsigned char w[44][4])
 {
@@ -145,25 +134,16 @@ void AESDecrypt(char msg[16], char cipher[16], unsigned char w[44][4])
 		msg[i] = cipher[i];
 		msg[i] ^= w[40 + i/4][i%4];
 	}
-	//printHex(msg);
 	for(i=9;i>=1;i--)
 	{
-		//cout<<"\nRound "<<10-i;
 		ShiftRows(msg,1);
-		//printHex(msg);
 		SubWord(msg,16,1);
-		//printHex(msg);
 		for(j=0;j<16;j++)
 			msg[j] ^= w[4*i + j/4][j%4];
-		//printHex(msg);
 		InvMixCol(msg);
-		//printHex(msg);
 	}
-	//cout<<"\nRound 10";
 	ShiftRows(msg,1);
-	//printHex(msg);
 	SubWord(msg,16,1);
-	//printHex(msg);
 	for(i=0;i<16;i++)
 		msg[i] ^= w[i/4][i%4];
 }
@@ -172,104 +152,3 @@ void print16(char *str)
 	for(int i=0;i<16;i++)
 		cout<<str[i];
 }
-/*
-void main()
-{
-	clrscr();
-	int i,j,flag=1,val=1;
-
-	unsigned char key[16] = {0x0f,0x15,0x71,0xc9,0x47,0xd9,0xe8,0x59,0x0c,0xb7,0xad,0xd6,0xaf,0x7f,0x67,0x98};
-	unsigned char word[44][4];
-	keyExpansion(key,word);
-
-	char data[16] = {0x01,0x23,0x45,0x67,0x89,0xab,0xcd,0xef,0xfe,0xdc,0xba,0x98,0x76,0x54,0x32,0x10},crypt[16],ch;
-
-	FILE *oFile,*cFile;
-	oFile = fopen("test.txt","rb");
-	cFile = fopen("cryptAES.dat","wb");
-
-	cout<<"\n\tEncryption starts ";
-	clock_t c1 = clock();
-
-	while(flag)
-	{
-		ch=fgetc(oFile);
-		i=0;
-		while(ch!=EOF)
-		{
-			//cout<<ch;
-			data[i++]=ch;
-			if(i==16)
-				break;
-			ch=fgetc(oFile);
-		}
-		if(i==0)
-			break;
-		else if(i<16)
-		{
-			flag=0;
-			for(;i<16;i++)
-				data[i]=0;
-		}
-		AESEncrypt(data,crypt,word);
-		for(i=0;i<16;i++)
-		{
-			j = (unsigned char)crypt[i];
-			fputc(j,cFile);
-		}
-	}
-	fclose(oFile);
-	fclose(cFile);
-
-
-	cout<<"\n\tEncryption Ends ";
-	clock_t c2=clock();
-	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
-
-	cout<<"\n\tNow Decrypting ";
-	c1=clock();
-
-	cFile = fopen("cryptAES.dat","rb");
-	flag=1;
-	oFile = fopen("test1.txt","wb");
-	fseek(oFile,0,SEEK_SET);
-	fseek(cFile,0,SEEK_SET);
-
-	while(flag)
-	{
-		memset(crypt,0,16);
-		i=0;
-		while(val != EOF)
-		{
-			val = fgetc(cFile);
-			if(val == EOF)
-				flag=0;
-			else
-				crypt[i++] = (unsigned char)val;
-			if(i==16)
-				break;
-		}
-		AESDecrypt(data,crypt,word);
-
-		if(flag)
-		{
-			//print16(data);
-
-			for(int i=0;i<16;i++)
-			{
-				if(data[i])
-					fputc(data[i],oFile);
-			}
-		}
-	}
-	fclose(cFile);
-	fclose(oFile);
-
-	c2 = clock();
-	cout<<"\n\tDecrypting done";
-	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
-
-
-
-	getch();
-}*/

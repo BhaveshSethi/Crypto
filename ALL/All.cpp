@@ -40,16 +40,19 @@ void main()
 
 	int n=p*q;
 
-	cout<<"\n\tWelcome to all.cpp";
+	cout<<"\n\tMulyi-Layer.cpp";
 
 	//change the file below to change original file
-	char filename[10]="testy.txt";
+	char filename[20]="test.txt";
 
 	FILE *oFile,*cFile;
 	node *top,*np;
 	top=NULL;
 
-	int choice1=0,choice2;
+	clock_t c1,c2;
+
+	int choice1,choice2;
+
 	do
 	{
 		HERE:
@@ -79,7 +82,7 @@ void main()
 				}
 				if(top->next == NULL)
 				{
-					cFile = fopen("test1.txt","wb");
+					cFile = fopen("test1.dat","wb");
 					oFile = fopen("cryptALL.dat","rb");
 				}
 				else
@@ -155,6 +158,9 @@ void main()
 				length=16;
 			else
 				length=8;
+			cout<<"\n\tEncryption starts \n\t";
+			c1 = clock();
+
 			while(flag)
 			{
 				i=0;
@@ -199,6 +205,10 @@ void main()
 					fputc(j,cFile);
 				}
 			}
+			cout<<"\n\tEncryption Ends ";
+			c2=clock();
+			cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
+
 		}
 		else
 		{
@@ -210,6 +220,10 @@ void main()
 				length=16;
 			else
 				length=8;
+
+			cout<<"\n\tNow Decrypting ";
+			c1=clock();
+
 			while(flag)
 			{
 				i=0;
@@ -253,9 +267,14 @@ void main()
 					fputc(j,cFile);
 				}
 			}
+			c2 = clock();
+			cout<<"\n\tDecrypting done";
+			cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
+
 		}
 		fclose(oFile);
 		fclose(cFile);
+
 		if((top->next!=NULL && choice1==1) || (top!=NULL && choice1==2))
 		{
 			remove("cryptALL.dat");

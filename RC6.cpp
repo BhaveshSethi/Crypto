@@ -24,7 +24,6 @@ void keySched(char k[16], unsigned long S[2*r+4])
 		L[i]=0;
 		for(j=0;j<4;j++)
 				L[i] += (unsigned long)((int)k[4*i + j])<<(8*j);
-		//cout<<hex<<L[i]<<endl;
 	}
 	S[0] = P;
 	for(i=1;i<=2*r+3;i++)
@@ -50,13 +49,11 @@ void RC6Encrypt(char C[16], char M[16], unsigned long S[2*r+4])
 		A[i]=0;
 		for(j=0;j<4;j++)
 			A[i] += (unsigned long)((int)(unsigned char)M[4*i+j])<<(8*j);
-		//cout<<"\tA["<<dec<<i<<"] is "<<hex<<A[i]<<endl;
 	}
 	A[1]+=S[0];
 	A[3]+=S[1];
 	for(i=1;i<=r;i++)
 	{
-		//cout<<"\n\tRound "<<dec<<i;
 		t = Rol((A[1]*(A[1]*2 + 1)),5);
 		u = Rol((A[3]*(A[3]*2 + 1)),5);
 		A[0] = Rol((A[0]^t),u&31) + S[2*i];
@@ -84,13 +81,11 @@ void RC6Decrypt(char C[16], char M[16], unsigned long S[2*r+4])
 		A[i]=0;
 		for(j=0;j<4;j++)
 			A[i] += (unsigned long)((int)(unsigned char)C[4*i+j])*pow(2,8*j);
-		//cout<<"\tA["<<dec<<i<<"] is "<<hex<<A[i]<<endl;
 	}
 	A[2]-=S[2*r + 3];
 	A[0]-=S[2*r + 2];
 	for(i=r;i>=1;i--)
 	{
-		//cout<<"\n\tRound "<<dec<<21-i;
 		t=A[0];
 		A[0]=A[3];
 		A[3]=A[2];
@@ -125,29 +120,21 @@ void main()
 	char key[16],data[16],crypt[16],ch;
 	unsigned long S[2*r+4];
 	strcpy(key,"0123456789012345");
-	//memset(key,0,16);
 	cout<<"\n\tChosen key is ";
 	for(i=0;i<16;i++)
 		cout<<key[i];
-	/*cout<<"\n\tMsg is ";
-	strcpy(msg,"Bhavesh is a bad");
-	for(i=0;i<16;i++)
-		cout<<msg[i];
-	RC6Encrypt(crypt,msg,S);
-	cout<<"\n\tEncrypted Msg is \n\t";
-	for(i=0;i<16;i++)
-		cout<<(unsigned char)crypt[i];
-	RC6Decrypt(crypt,msg,S);
-	cout<<"\n\tMsg is \n\t";
-	for(i=0;i<16;i++)
-		cout<<msg[i];*/
-
 	keySched(key,S);
 	FILE *oFile,*cFile;
 	oFile = fopen("test.txt","rb");
 	cFile = fopen("cryptRC6.dat","wb");
 
-	cout<<"\n\tEncryption starts ";
+	cout<<"\n\tEncrypting File Test.txt:\n";
+	while((ch=fgetc(oFile))!=EOF)
+		cout<<ch;
+	cout<<"\n\nEncrypted File:\n";
+	fclose(oFile);
+	oFile = fopen("test.txt","rb");
+
 	clock_t c1 = clock();
 
 	while(flag)
@@ -156,7 +143,6 @@ void main()
 		i=0;
 		while(ch!=EOF)
 		{
-			//cout<<ch;
 			data[i++]=ch;
 			if(i==16)
 				break;
@@ -174,6 +160,7 @@ void main()
 		for(i=0;i<16;i++)
 		{
 			j = (unsigned char)crypt[i];
+			cout<<(unsigned char)j;
 			fputc(j,cFile);
 		}
 	}
@@ -194,7 +181,7 @@ void main()
 	clock_t c2=clock();
 	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
 
-	cout<<"\n\tNow Decrypting ";
+	cout<<"\n\n\tNow Decrypting\n\t";
 	c1=clock();
 
 	while(flag)
@@ -215,8 +202,7 @@ void main()
 
 		if(flag)
 		{
-			//print16(data);
-
+			print16(data);
 			for(int i=0;i<16;i++)
 			{
 				if(data[i])

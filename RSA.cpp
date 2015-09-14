@@ -16,13 +16,11 @@ int power(int a, int b, int c)
 	int r = 1;
 	while(b>0)
 	{
-		//cout<<"\n"<<a<<" "<<b<<" "<<c<<" "<<r;
 		if(b&1)
 			r = fmod((double)r*a,c);
 		b>>=1;
 		a = fmod((double)a*a,c);
 	}
-//	cout<<endl<<r;
 	return r;
 }
 
@@ -34,12 +32,16 @@ void main()
 	char ch=1,ch1;
 	cout<<"\n\tRSA ";
 	FILE *oFile,*cFile;
-	oFile = fopen("testy.txt","rb");
+	oFile = fopen("test.txt","rb");
 	cFile = fopen("cryptRSA.dat","wb");
 
-	cout<<"\n\tEncrypting..";
-
-	cout<<"\n\tEncryption starts ";
+	cout<<"\n\tEncrypting File Test.txt:\n";
+	while((ch=fgetc(oFile))!=EOF)
+		cout<<ch;
+	cout<<"\n\nEncrypted File:\n";
+	fclose(oFile);
+	oFile = fopen("test.txt","rb");
+	ch=1;
 	clock_t c1 = clock();
 
 	while(ch!=EOF)
@@ -48,7 +50,7 @@ void main()
 		if(ch==EOF)
 			break;
 		ch1 = char(power((int)ch,e,n));
-		//cout<<ch;
+		cout<<ch1;
 		fputc(ch1,cFile);
 	}
 	fclose(oFile);
@@ -58,10 +60,9 @@ void main()
 	clock_t c2=clock();
 	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
 
-	cout<<"\n\tNow Decrypting ";
+	cout<<"\n\n\tNow Decrypting\n\t";
 	c1=clock();
 
-	cout<<"\n\tDone\n\tNow Deciphering.. ";
 	oFile = fopen("test1.txt","wb");
 	cFile = fopen("cryptRSA.dat","rb");
 	ch=1;
@@ -71,13 +72,12 @@ void main()
 		if(ch==EOF)
 			break;
 		ch1 = (char)(power((int)(unsigned char)ch,d,n));
-		//cout<<ch1;
+		cout<<ch1;
 		fputc(ch1,oFile);
 	}
 	fclose(oFile);
 	fclose(cFile);
 
-	cout<<"\n\tDone";
 	c2 = clock();
 	cout<<"\n\tDecrypting done";
 	cout<<"\n\tTime taken is "<<(c2-c1)/CLK_TCK<<" sec";
